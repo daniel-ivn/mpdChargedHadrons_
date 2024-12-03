@@ -115,7 +115,7 @@ void ChemicalPotential( void )
     TCanvas *c2 = new TCanvas("c2", "c2", 29, 30, 1200, 1000);
     c2->cd();
     c2->SetGrid();
-    double ll = 0.00001, rl = 1.9, pad_min = 0., pad_max = 0.1, 
+    double ll = 0.00001, rl = 1.9, pad_min = 0., pad_max = 0.08, 
         pad_offset_x = 1., pad_offset_y = 1., 
         pad_tsize = 0.05, pad_lsize=0.05;
     TString pad_title_y = "#bar{p}/p";

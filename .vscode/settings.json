@@ -1,5 +1,6 @@
 {
     "files.associations": {
-        "ChemicalPotential.C": "cpp"
+        "ChemicalPotential.C": "cpp",
+        "spectra.C": "cpp"
     }
 }

@@ -8,7 +8,7 @@
 #include "HFitInterface.h"
 #include "TCanvas.h"
 #include "TStyle.h"
-#include "spectra_def.h"
+#include "def.h"
 
 int ipar0[3] = {2, 0, 1};
 int ipar2[3] = {3, 0, 1};

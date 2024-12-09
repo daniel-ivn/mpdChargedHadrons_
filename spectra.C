@@ -1,6 +1,4 @@
-
-
-#include "spectra_def.h"
+#include "def.h"
 
 using namespace std;
 

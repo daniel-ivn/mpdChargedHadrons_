@@ -16,6 +16,7 @@ const int MAX_CENTR = 10;
 const int MAX_PARTS = 6;
 const int N_CENTR = 6;
 const int N_PARTS = 6;
+const int N_SIGMA = 2;
 const int PARTS[] = {0, 1, 2, 3, 4, 5};
 const int PARTS_GLOBAL[] = {0, 2, 4};
 const int CENTR[] = {0, 1, 2, 3, 4, 5};
@@ -33,7 +34,15 @@ string centrTitles[10] = {"0-10%", "10-20%", "20-30%", "30-40%", "40-60%", "60-8
 
 
 // =============== Для  BlastWave ======================
-TF1 *ifuncxGlobal[MAX_PARTS][N_CENTR];
+double xmin[] = {0.4, 0.2, 0.12, 0.4, 0.2, 0.12};
+double xmax[] = {1, 1., 1, 1, 1, 1};
+
+TGraph *contour[N_PARTS][N_CENTR][N_SIGMA];
+TF1 *ifuncx[N_PARTS][N_CENTR], *ifuncxGlobal[MAX_PARTS][N_CENTR];
+
+double constPar[N_PARTS][N_CENTR],
+       Tpar[N_PARTS][N_CENTR], Tpar_err[N_PARTS][N_CENTR], 
+       utPar[N_PARTS][N_CENTR], utPar_err[N_PARTS][N_CENTR];
 double paramsGlobal[N_CENTR][5]; // 5 - количество параметров 1) T 2) ut 3) const pi 4) const K 5) const p
 // по частицам
 double con[]    = {10, 10, 1, 1, 0.1, 0.1};  
@@ -44,6 +53,15 @@ double conmax[] = {500, 500, 50, 50, 5000, 5000};
 double conGlobal[]    = {100, 100, 120, 60, 0.01, 0.01};  
 double conminGlobal[] = {0, 0, 0, 0, 0, 0};
 double conmaxGlobal[] = {5000, 5000, 5000, 5000, 5000, 5000};
+
+void getGlobalParams( int part, int centr, double parResults[4] )
+{
+    parResults[0] = paramsGlobal[centr][2 + part / 2];
+    parResults[1] = paramsGlobal[centr][0]; 
+    parResults[2] = paramsGlobal[centr][1]; 
+    parResults[3] = masses[part];     
+}
+
 //=======================================================
 
 void SetSpectra(string inputFileName = "postprocess_mpdpid10", string type = "pt")
@@ -82,5 +100,6 @@ void SetSpectra(string inputFileName = "postprocess_mpdpid10", string type = "pt
         }
     }
 }
+
 
 #endif /* __DEF_H_ */

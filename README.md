@@ -18,7 +18,8 @@ python postprocess.py -i 'input/mpdpid10.root' -d output -s input/settings.json
 
 **ChemicalPotential** - строит фазовую диаграмму и отношения
 
-
+**BlastWaveGlobal** - строит BlastWave GlobalFit. 
+output - BlastWaveGlobalFit.pdf, GlobalBWparams.txt
 
 
 

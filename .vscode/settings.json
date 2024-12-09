@@ -5,6 +5,10 @@
         "BlastWaveGlobal.C": "cpp",
         "string": "cpp",
         "new": "cpp",
-        "string_view": "cpp"
+        "string_view": "cpp",
+        "BlastWave.C": "cpp",
+        "ReadFiles.C": "cpp",
+        "*.tcc": "cpp",
+        "fstream": "cpp"
     }
 }

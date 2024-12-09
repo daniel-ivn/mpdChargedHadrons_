@@ -3,39 +3,12 @@
 #include "spectra_def.h"
 
 using namespace std;
-void FormatSpectraPad( double texScale = 1 )
-{
-    double ll = 0.01, rl = 2.49, pad_min = 0.0011, pad_max = 3000, 
-            pad_offset_x = 1., pad_offset_y = 1., 
-            pad_tsize = 0.09 * texScale, pad_lsize=0.08 * texScale;
-    TString pad_title_y = "d^{2}N/(p_{T}dydp_{T})";
-    TString pad_title_x = "p_{T} [GeV/c]";
-    Format_Pad(ll, rl, pad_min, pad_max, pad_title_x, pad_title_y, pad_offset_x, pad_offset_y, pad_tsize, pad_lsize, "");        
-}
 
 void spectra( int systN = 0 )
 {
     // ++++++ Read data +++++++++++++++++++++++++++++++++++++
-
     string inputFileName = "postprocess_mpdpid10";
-    TFile *f = new TFile(("input/" + inputFileName + ".root").c_str());
-    TDirectory *fd;
-
-    for (int i = 0; i < 6; i++)
-    {
-        fd = (TDirectory*)f->Get(particles[i].c_str());
-        fd->cd();
-        for (int centr = 0; centr < N_CENTR; centr++)
-        {
-            string name = "h__pt_" + particles[i] +"_centrality" + to_string(centr) + "_mc_y-0.5_0.5";
-            cout << name << endl;
-            hSpectra[i][centr] = (TH1D *)fd->Get(name.c_str());    
-            grSpectra[i][centr] = new TGraphErrors(hSpectra[i][centr]);
-
-            grSpectra[i][centr]->SetLineColor(centrColors[centr]);
-
-        }
-    }
+    SetSpectra(inputFileName, "pt");
 
     // ++++++ Draw spectra +++++++++++++++++++++++++++++++++++++
 

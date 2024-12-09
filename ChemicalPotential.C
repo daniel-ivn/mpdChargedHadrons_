@@ -110,7 +110,7 @@ void ChemicalPotential( void )
         cout << "centr  " << centr << " " << ratioP[centr] << endl;
     }
 
-    // ++++++ Read data +++++++++++++++++++++++++++++++++++++
+    // ++++++ Draw data +++++++++++++++++++++++++++++++++++++
 
     TCanvas *c2 = new TCanvas("c2", "c2", 29, 30, 1200, 1000);
     c2->cd();

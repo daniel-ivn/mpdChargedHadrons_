@@ -1,6 +1,10 @@
 {
     "files.associations": {
         "ChemicalPotential.C": "cpp",
-        "spectra.C": "cpp"
+        "spectra.C": "cpp",
+        "BlastWaveGlobal.C": "cpp",
+        "string": "cpp",
+        "new": "cpp",
+        "string_view": "cpp"
     }
 }

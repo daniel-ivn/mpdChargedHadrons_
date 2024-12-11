@@ -120,8 +120,10 @@ void BlastWave( void )
         {
             if (!ifuncx[i][centr]) continue;
 
-            grSpectra[i][centr]->SetLineColor(centrColors[centr]);
-            grSpectra[i][centr]->Draw("SAME");      
+            grSpectra[i][centr]->SetMarkerColor(centrColors[centr]);
+            grSpectra[i][centr]->SetMarkerSize(1);
+            grSpectra[i][centr]->SetMarkerStyle(8);
+            grSpectra[i][centr]->Draw("P SAME");      
             ifuncx[i][centr]->Draw("SAME");
             legend->AddEntry(grSpectra[i][centr], centrTitles[centr].c_str(), "p");        
         }

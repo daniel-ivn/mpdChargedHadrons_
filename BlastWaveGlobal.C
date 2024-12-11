@@ -14,19 +14,28 @@ int ipar0[3] = {2, 0, 1};
 int ipar2[3] = {3, 0, 1};
 int ipar4[3] = {4, 0, 1};
  
- void WriteParams(const char filename[30] = "output/GlobalBWparams.txt" )
+bool isParamsFileExist = false;
+
+void WriteParams( int charge, const char filename[30] = "output/GlobalBWparams.txt" )
 {
-    ofstream txtFile;
-    txtFile.open(filename);
+   cout << " WriteParams " << endl;
+   ofstream txtFile;
+   if (isParamsFileExist) 
+   {
+      txtFile.open(filename, ios::app);
+      txtFile << endl;
+   }
+   else txtFile.open(filename);
 
    for (int centr: CENTR)
    {
-      txtFile << centr << "  " 
-               << paramsGlobal[centr][0]  << "  " << paramsGlobal[centr][1] << "  "
-               << paramsGlobal[centr][2] << "   " << paramsGlobal[centr][3] << "   " << paramsGlobal[centr][4] << endl;
+      txtFile  << charge << "  "  << centr << "  " 
+               << paramsGlobal[charge][centr][0]  << "  " << paramsGlobal[charge][centr][1] << "  "
+               << paramsGlobal[charge][centr][2] << "   " << paramsGlobal[charge][centr][3] << "   " << paramsGlobal[charge][centr][4] << endl;
    }
     
    txtFile.close();
+   isParamsFileExist = true;
 }
 
 // Create the GlobalCHi2 structure
@@ -51,28 +60,27 @@ struct GlobalChi2 {
       const int Nparams = 4, Nfunc = 3;
       double p[Nfunc][Nparams];
       int commonParams = 3;
-      // cout << "  " << par[0] << " " << par[1] << " " << par[2] << " " << par[3] << " " <<par[4] << endl;
       for (int i = 0; i < Nfunc; i++)
       {
          p[i][0] = par[2 + i];
          p[i][1] = par[0]; 
          p[i][2] = par[1]; 
          p[i][3] = masses[2 * i];
-         // cout << i << "  " << p[i][0] << " " << p[i][1] << " " << p[i][2] << " " << p[i][3] << " " << endl;
       }
  
       return (*fChi2_1)(p[0]) + (*fChi2_2)(p[1]) + (*fChi2_3)(p[2]);
    }
 };
  
-void GlobalFitCentr( int centr ) 
+void GlobalFitCentr( int centr, int charge = 0 ) 
 {
+   cout << " GlobalFitCentr " << endl;
    double xmin = 0.3, xmax = 1.2;
 
    // perform now global fit
-   ROOT::Math::WrappedMultiTF1 wf0(*ifuncxGlobal[0][centr], 1);
-   ROOT::Math::WrappedMultiTF1 wf2(*ifuncxGlobal[2][centr], 1);
-   ROOT::Math::WrappedMultiTF1 wf4(*ifuncxGlobal[4][centr], 1);
+   ROOT::Math::WrappedMultiTF1 wf0(*ifuncxGlobal[0 + charge][centr], 1);
+   ROOT::Math::WrappedMultiTF1 wf2(*ifuncxGlobal[2 + charge][centr], 1);
+   ROOT::Math::WrappedMultiTF1 wf4(*ifuncxGlobal[4 + charge][centr], 1);
  
    ROOT::Fit::DataOptions opt;
    ROOT::Fit::DataRange range0, range2, range4;
@@ -80,15 +88,15 @@ void GlobalFitCentr( int centr )
    
    range0.SetRange(xmin, xmax);
    ROOT::Fit::BinData data0(opt, range0);
-   ROOT::Fit::FillData(data0, grSpectra[0][centr]);
+   ROOT::Fit::FillData(data0, grSpectra[0 + charge][centr]);
  
    range2.SetRange(xmin, xmax);
    ROOT::Fit::BinData data2(opt, range2);
-   ROOT::Fit::FillData(data2, grSpectra[2][centr]);
+   ROOT::Fit::FillData(data2, grSpectra[2 + charge][centr]);
  
    range4.SetRange(xmin, xmax);
    ROOT::Fit::BinData data4(opt, range4);
-   ROOT::Fit::FillData(data4, grSpectra[4][centr]);
+   ROOT::Fit::FillData(data4, grSpectra[4 + charge][centr]);
    
    ROOT::Fit::Chi2Function chi2_0(data0, wf0);
    ROOT::Fit::Chi2Function chi2_2(data2, wf2);
@@ -105,10 +113,10 @@ void GlobalFitCentr( int centr )
    fitter.Config().SetParamsSettings(Npar, par0);
 
    fitter.Config().ParSettings(0).SetLimits(0.08, 0.2);
-   fitter.Config().ParSettings(1).SetLimits(0.01, 0.99);
-   fitter.Config().ParSettings(2).SetLimits(conminGlobal[0], conmaxGlobal[0]);
-   fitter.Config().ParSettings(3).SetLimits(conminGlobal[2], conmaxGlobal[2]);
-   fitter.Config().ParSettings(4).SetLimits(conminGlobal[4], conmaxGlobal[4]);
+   fitter.Config().ParSettings(1).SetLimits(0.1, 0.99);
+   fitter.Config().ParSettings(2).SetLimits(conminGlobal[0 + charge], conmaxGlobal[0]);
+   fitter.Config().ParSettings(3).SetLimits(conminGlobal[2 + charge], conmaxGlobal[2]);
+   fitter.Config().ParSettings(4).SetLimits(conminGlobal[4 + charge], conmaxGlobal[4]);
 
    fitter.Config().MinimizerOptions().SetPrintLevel(0);
    fitter.Config().SetMinimizer("Minuit2","Migrad");
@@ -120,44 +128,65 @@ void GlobalFitCentr( int centr )
    result.Print(std::cout);
 
    const double *fitResults = result.GetParams();
-   for (int i = 0; i < 5; i++ ) paramsGlobal[centr][i] = fitResults[i];
-   WriteParams();
-   cout<< "Result " << paramsGlobal[centr][0] << "  " << paramsGlobal[centr][1] << "  " << paramsGlobal[centr][2] << "  " << paramsGlobal[centr][3] << "  " << paramsGlobal[centr][4] << endl;
+   for (int i = 0; i < 5; i++ ) paramsGlobal[charge][centr][i] = fitResults[i];
+
+   string chargeFlag = (charge == 0) ? "pos" : "neg";
+   cout<< "Result " << paramsGlobal[charge][centr][0] << "  " << paramsGlobal[charge][centr][1] << "  " << paramsGlobal[charge][centr][2] << "  " << paramsGlobal[charge][centr][3] << "  " << paramsGlobal[charge][centr][4] << endl;
 }
 
-void DrawFitSpectra()
+void DrawFitSpectra( string chargeFlag = "all" )
 {
-   TCanvas *c2 = new TCanvas("c2", "c2", 29, 30, 900, 1200);
-   Format_Canvas(c2, 1, 3, 0);
+   TCanvas *c2 = new TCanvas("c2", "c2", 29, 30, 1100, 1200);
+   Format_Canvas(c2, 2, 3, 0);
 
    int padN = 1;   
-   for (int part: PARTS_GLOBAL)
+   for (int part: PARTS_ALL)
    {
       c2->cd(padN++);
       FormatSpectraPad(1);
+
+      if (chargeFlag == "pos" && part % 2 == 1) continue;
+      if (chargeFlag == "neg" && part % 2 == 0) continue;
+
+      double shiftX = (part % 2 == 0) ? 0 : 0.1;
+      double texScale = (part < 3) ? 1 : 0.9;
+
+      TLegend *legend = new TLegend(0.55 - shiftX, 0.7, 0.98 - shiftX, 0.9); //1 column
+      legend->SetNColumns(2);
+      legend->SetBorderSize(0);
+      legend->SetFillStyle(0);
+      legend->SetTextSize(0.07 * texScale);
+
+      TLatex *titleTex = new TLatex(0.6, 500, partTitles[part].c_str());
+      titleTex->SetTextFont(42);
+      titleTex->SetTextSize(0.08);
+      titleTex->SetLineWidth(2 * texScale);
+
       for (int centr: CENTR)
       {
          double parResults[5];
-         parResults[0] = paramsGlobal[centr][2 + part / 2];
-         parResults[1] = paramsGlobal[centr][0]; 
-         parResults[2] = paramsGlobal[centr][1]; 
-         parResults[3] = masses[part];
+         getGlobalParams(part, centr, parResults);
 
          ifuncxGlobal[part][centr]->SetParameters(parResults);
          ifuncxGlobal[part][centr]->SetLineColor(centrColors[centr]);
          ifuncxGlobal[part][centr]->Draw("SAME");
          grSpectra[part][centr]->GetListOfFunctions()->Add(ifuncxGlobal[part][centr]);
          grSpectra[part][centr]->SetMarkerStyle(8);
-         grSpectra[part][centr]->SetMarkerSize(2);
+         grSpectra[part][centr]->SetMarkerSize(1);
          grSpectra[part][centr]->Draw("P SAME");
+
+         legend->AddEntry(ifuncxGlobal[part][centr], centrTitles[centr].c_str(), "l");        
       }
+
+      legend->Draw();
+      titleTex->Draw(); 
    }
  
    c2->SaveAs("output/BlastWaveGlobalFit.pdf");
    gROOT->ProcessLine(".q");
 }
 
-void BlastWaveGlobal() 
+void BlastWaveGlobal(string chargeFlag = "all") 
 {
    // ++++++ Read data ++++++++++++++++++++++++++++++++++++
 
@@ -179,7 +208,7 @@ void BlastWaveGlobal()
       funcx->SetParNames("constant", "T", "beta", "mass", "pt");
       integ = new MyIntegFunc(funcx);
 
-      for (int part: PARTS_GLOBAL)
+      for (int part: PARTS_ALL)
       {
          string ifuncxName = "BW_" + to_string(part);
          ifuncxGlobal[part][centr] = new TF1("ifuncx", integ, xmin, xmax, 4, ifuncxName.c_str());
@@ -192,8 +221,13 @@ void BlastWaveGlobal()
          ifuncxGlobal[part][centr]->SetParLimits(1, 0.06, 0.2);          	        //	temp.
          ifuncxGlobal[part][centr]->SetParLimits(2, 0.1, 0.99);	                    //	beta
       }
-      GlobalFitCentr(centr);
+
+      if (chargeFlag != "neg") GlobalFitCentr(centr, 0); // positive charged
+      if (chargeFlag != "pos") GlobalFitCentr(centr, 1); // negative charged
    }
+
+   if (chargeFlag != "neg") WriteParams(0);
+   if (chargeFlag != "pos") WriteParams(1);
 
    DrawFitSpectra();
 }

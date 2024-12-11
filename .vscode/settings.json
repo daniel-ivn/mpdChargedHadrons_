@@ -1,5 +1,6 @@
 {
     "files.associations": {
+        "*.dbclient-js": "javascript",
         "ChemicalPotential.C": "cpp",
         "spectra.C": "cpp",
         "BlastWaveGlobal.C": "cpp",
@@ -9,6 +10,8 @@
         "BlastWave.C": "cpp",
         "ReadFiles.C": "cpp",
         "*.tcc": "cpp",
-        "fstream": "cpp"
+        "fstream": "cpp",
+        "ostream": "cpp",
+        "BWDrawParams.C": "cpp"
     }
 }

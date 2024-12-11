@@ -12,6 +12,8 @@
         "*.tcc": "cpp",
         "fstream": "cpp",
         "ostream": "cpp",
-        "BWDrawParams.C": "cpp"
+        "BWDrawParams.C": "cpp",
+        "Cumulative.C": "cpp",
+        "cmath": "cpp"
     }
 }

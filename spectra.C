@@ -1,4 +1,5 @@
 #include "def.h"
+#include "Cumulative.h"
 
 using namespace std;
 
@@ -40,6 +41,8 @@ void spectra( int systN = 0 )
         }
         legend->Draw();
         titleTex->Draw();    
+        
+        DrawCumulativeBorder(i, PAD_MIN, PAD_MAX);
     }
 
     c2->SaveAs(("output/spectra_" + inputFileName + ".pdf").c_str());

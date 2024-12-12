@@ -23,7 +23,7 @@ output - BlastWaveGlobalFit.pdf, GlobalBWparams.txt
 
 **BlastWave.C** - строит отдельные BlastWave фиты для каждой частицы, а в качетсве начальных параметров аппроксимации задаются параметры, полученные в ГлобалФите (output/GlobalBWparams.txt)
 
-## BlastWave
+## BlastWave  12.2024
 
 **BlastWaveGlobal** - строит Глобальный (общий) фит по pi, K, p одновременно. 
 
@@ -42,3 +42,6 @@ output - BlastWaveGlobalFit.pdf, GlobalBWparams.txt
 * output/BWparam_ut.pdf
 
 
+## Cumulative 12.12.2024
+
+**Cumulative.h** - void DrawCumulativeBorder( int part, double pad_min, double pad_max ) - строит вертикальную линию по кумулятивной границе. Эта граница добавлена в **spectra.C** и на spectra_postprocess_mpdpid10.pdf

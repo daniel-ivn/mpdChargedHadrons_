@@ -139,10 +139,13 @@ void Format_Pad(double_t left, double_t right, double_t min, double_t max, const
   second->Draw();
 }
 
+double PAD_MIN = 0.0001;
+double PAD_MAX = 300000;
+
 void FormatSpectraPad( double texScale = 1 )
 {
     cout<< "Format pad" << endl;
-    double ll = 0.01, rl = 2.49, pad_min = 0.0001, pad_max = 300000, 
+    double ll = 0.01, rl = 2.49, pad_min = PAD_MIN, pad_max = PAD_MAX, 
             pad_offset_x = 1., pad_offset_y = 1., 
             pad_tsize = 0.09 * texScale, pad_lsize=0.08 * texScale;
     TString pad_title_y = "d^{2}N/(p_{T}dydp_{T})";

@@ -46,7 +46,9 @@ TF1 *ifuncx[MAX_PARTS][N_CENTR], *ifuncxGlobal[MAX_PARTS][N_CENTR];
 double constPar[MAX_PARTS][N_CENTR],
        Tpar[MAX_PARTS][N_CENTR], Tpar_err[MAX_PARTS][N_CENTR], 
        utPar[MAX_PARTS][N_CENTR], utPar_err[MAX_PARTS][N_CENTR];
-double paramsGlobal[2][N_CENTR][5]; // [2] - charge, 5 - количество параметров 1) T 2) ut 3) const pi 4) const K 5) const p
+double paramsGlobal[2][N_CENTR][5]; //[2] - charge 5 - количество параметров 1) T 2) ut 3) const pi 4) const K 5) const p
+double paramsGlobalAllParts[N_CENTR][5]; //5 - количество параметров 1) T 2) ut 3) const pi 4) const K 5) const p
+
 // по частицам
 double con[]    = {10, 10, 1, 1, 0.1, 0.001};  
 double conmin[] = {0, 0, 0, 0, 0, 0};
@@ -55,7 +57,15 @@ double conmax[] = {500, 500, 50, 50, 5000, 50};
 //For GlobalFit
 double conGlobal[]    = {100, 100, 120, 60, 0.01, 0.0001};  
 double conminGlobal[] = {0, 0, 0, 0, 0, 0};
-double conmaxGlobal[] = {5000, 5000, 5000, 5000, 5000, 50};
+double conmaxGlobal[] = {500, 500, 100, 100, 5000, 100};
+
+void getGlobalParamsAllParts( int part, int centr, double parResults[4] )
+{
+    parResults[0] = paramsGlobalAllParts[centr][2 + part / 2];
+    parResults[1] = paramsGlobalAllParts[centr][0]; 
+    parResults[2] = paramsGlobalAllParts[centr][1]; 
+    parResults[3] = masses[part];     
+}
 
 void getGlobalParams( int part, int centr, double parResults[4] )
 {
@@ -95,7 +105,7 @@ void SetSpectra(string inputFileName = "postprocess_mpdpid10", string type = "pt
                 mT[bin - 1] = sqrt(pT[bin - 1] * pT[bin - 1] + masses[i] * masses[i]) - masses[i];
             }
     
-            if (type == "mt") 
+            if (type == "mt")
                 grSpectra[i][centr] = new TGraphErrors(N_BINS - 1, mT, sp, xerr, sp_err);
             else if (type == "pt")
                 grSpectra[i][centr] = new TGraphErrors(hSpectra[i][centr]);

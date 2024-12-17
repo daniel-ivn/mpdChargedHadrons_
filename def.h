@@ -46,7 +46,6 @@ TF1 *ifuncx[MAX_PARTS][N_CENTR], *ifuncxGlobal[MAX_PARTS][N_CENTR];
 double constPar[MAX_PARTS][N_CENTR],
        Tpar[MAX_PARTS][N_CENTR], Tpar_err[MAX_PARTS][N_CENTR], 
        utPar[MAX_PARTS][N_CENTR], utPar_err[MAX_PARTS][N_CENTR];
-double paramsGlobal[2][N_CENTR][5]; //[2] - charge 5 - количество параметров 1) T 2) ut 3) const pi 4) const K 5) const p
 double paramsGlobalAllParts[N_CENTR][5]; //5 - количество параметров 1) T 2) ut 3) const pi 4) const K 5) const p
 
 // по частицам
@@ -67,13 +66,15 @@ void getGlobalParamsAllParts( int part, int centr, double parResults[4] )
     parResults[3] = masses[part];     
 }
 
-void getGlobalParams( int part, int centr, double parResults[4] )
+void getGlobalParams( int part, int centr, double paramsGlobal[2][N_CENTR][5], double parResults[4] )
 {
     int charge = part % 2; 
     parResults[0] = paramsGlobal[charge][centr][2 + part / 2];
     parResults[1] = paramsGlobal[charge][centr][0]; 
     parResults[2] = paramsGlobal[charge][centr][1]; 
     parResults[3] = masses[part];     
+    cout << part << "  " << centr << "  " << parResults[0] << "  "  << parResults[1] << "  " << parResults[2] << endl;
+    cout << "Test " << endl;
 }
 
 //=======================================================

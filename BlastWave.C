@@ -55,7 +55,6 @@ void BlastWave( void )
     funcx->SetParNames("constant", "T", "beta", "mass", "pt");
     MyIntegFunc *integ = new MyIntegFunc(funcx);
 
-    ReadGlobalParams();
     for (int part: PARTS)
     {  
         for (int centr: CENTR)
@@ -66,7 +65,7 @@ void BlastWave( void )
             double parResults[5];
             getGlobalParams(part, centr, parResults);
             if (parResults[0] == 0)
-                break;
+                continue;
                 
             cout <<parResults[0] << "  " << parResults[1]  << "  " << parResults[2] << endl;
             ifuncx[part][centr]->SetParameters(parResults);
@@ -75,6 +74,8 @@ void BlastWave( void )
             {
                 ifuncx[part][centr]->SetParLimits(par, parResults[par] * 0.9, parResults[par] * 1.1);
             }
+
+            ifuncx[part][centr]->SetParLimits(0, parResults[par] * 0.9, parResults[par] * 1.1);
             ifuncx[part][centr]->FixParameter(3, masses[part]);	//	mass
 
             ifuncx[part][centr]->SetLineColor(centrColors[centr]);

@@ -55,19 +55,13 @@ void DrawCumulativeBorder( int part, double pad_min, double pad_max )
 
     double theta1 = getTheta(0.5); // быстрота = 3 -> theta = 5.7
     double Emax = maxE(&theta1, params);
-    if (Emax) 
-    {
-        double pmax = sqrt(Emax * Emax - masses[part] * masses[part]);
+    double pmax = sqrt(Emax * Emax - masses[part] * masses[part]);
 
-        cout << part << "  " << pmax << endl;
+    TLine *line= new TLine(pmax, pad_min, pmax, pad_max); 
+    line->SetLineWidth(2);
+    line->SetLineStyle(kDashed);
+    line->Draw("same");
 
-    
-    
-        TLine *line= new TLine(pmax, pad_min, pmax, pad_max); 
-        line->SetLineWidth(2);
-        line->SetLineStyle(kDashed);
-        line->Draw("same");
-    }
 }
 
 #endif /* __CUMULATIVE_H_ */

@@ -1,6 +1,6 @@
 #include "def.h"
 
-void ReadGlobalParams( const char filename[30] = "output/GlobalBWparams.txt" )
+void ReadGlobalParams( double paramsGlobal[2][N_CENTR][5], const char filename[30] = "output/GlobalBWparams.txt" )
 {
     ifstream txtFile;
     txtFile.open(filename);

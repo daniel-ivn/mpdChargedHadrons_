@@ -9,6 +9,7 @@
 #include "TCanvas.h"
 #include "TStyle.h"
 #include "def.h"
+#include "ReadFiles.h"
 
 int ipar0[3] = {2, 0, 1};
 int ipar2[3] = {3, 0, 1};
@@ -16,7 +17,7 @@ int ipar4[3] = {4, 0, 1};
  
 bool isParamsFileExist = false;
 
-void WriteParams( int charge, const char filename[30] = "output/GlobalBWparams.txt" )
+void WriteParams( int charge, double paramsGlobal[2][N_CENTR][5], const char filename[30] = "output/GlobalBWparams.txt" )
 {
    cout << " WriteParams " << endl;
    ofstream txtFile;
@@ -72,7 +73,7 @@ struct GlobalChi2 {
    }
 };
  
-void GlobalFitCentr( int centr, int charge = 0 ) 
+void GlobalFitCentr( double paramsInit[5], double paramsGlobal[2][N_CENTR][5], int centr, int charge = 0 ) 
 {
    cout << " GlobalFitCentr " << endl;
    double xmin = 0.3, xmax = 1.2;
@@ -105,18 +106,18 @@ void GlobalFitCentr( int centr, int charge = 0 )
    GlobalChi2 globalChi2(chi2_0, chi2_2, chi2_4);
  
    ROOT::Fit::Fitter fitter;
- 
-   const int Npar = 5;
-   double par0[Npar] = { 0.108, 0.7, con[0], con[2], con[4] };
- 
-   // create before the parameter settings in order to fix or set range on them
-   fitter.Config().SetParamsSettings(Npar, par0);
 
-   fitter.Config().ParSettings(0).SetLimits(0.08, 0.2);
-   fitter.Config().ParSettings(1).SetLimits(0.1, 0.99);
-   fitter.Config().ParSettings(2).SetLimits(conminGlobal[0 + charge], conmaxGlobal[0]);
-   fitter.Config().ParSettings(3).SetLimits(conminGlobal[2 + charge], conmaxGlobal[2]);
-   fitter.Config().ParSettings(4).SetLimits(conminGlobal[4 + charge], conmaxGlobal[4]);
+   const int Npar = 5;
+  
+   // create before the parameter settings in order to fix or set range on them
+   //fitter.Config().SetParamsSettings(Npar, par0);
+   fitter.Config().SetParamsSettings(Npar, paramsInit);
+
+   fitter.Config().ParSettings(0).SetLimits(0.06, 0.13);
+   fitter.Config().ParSettings(1).SetLimits(0.3, 0.95);
+   fitter.Config().ParSettings(2).SetLimits(paramsInit[2 + 0 + charge] * 0.5, paramsInit[2 + 0 + charge] * 1.5);
+   fitter.Config().ParSettings(3).SetLimits(paramsInit[2 + 2 + charge] * 0.5, paramsInit[2 + 2 + charge] * 1.5);
+   fitter.Config().ParSettings(4).SetLimits(paramsInit[2 + 4 + charge] * 0.5, paramsInit[2 + 4 + charge] * 1.5);
 
    fitter.Config().MinimizerOptions().SetPrintLevel(0);
    fitter.Config().SetMinimizer("Minuit2","Migrad");
@@ -162,10 +163,13 @@ void DrawFitSpectra( string chargeFlag = "all" )
       titleTex->SetTextSize(0.08);
       titleTex->SetLineWidth(2 * texScale);
 
+      double paramsGlobal[2][N_CENTR][5]; // For initial values
+      ReadGlobalParams(paramsGlobal);
+      
       for (int centr: CENTR)
-      {
+      {   
          double parResults[5];
-         getGlobalParams(part, centr, parResults);
+         getGlobalParams(part, centr, paramsGlobal, parResults);
 
          ifuncxGlobal[part][centr]->SetParameters(parResults);
          ifuncxGlobal[part][centr]->SetLineColor(centrColors[centr]);
@@ -186,7 +190,7 @@ void DrawFitSpectra( string chargeFlag = "all" )
    gROOT->ProcessLine(".q");
 }
 
-void BlastWaveGlobal(string chargeFlag = "all") 
+void BlastWaveGlobal_1Fit(string chargeFlag = "all", double setParams[5] = nullptr) 
 {
    // ++++++ Read data ++++++++++++++++++++++++++++++++++++
 
@@ -194,6 +198,11 @@ void BlastWaveGlobal(string chargeFlag = "all")
     SetSpectra(inputFileName, "mt");
 
    // +++++++++ Fit +++++++++++++++++++++++++++++++++++++++
+
+   double paramsGlobal[2][N_CENTR][5]; // Global params to store results
+
+   double paramsInit[2][N_CENTR][5]; // For initial values
+   ReadGlobalParams(paramsInit);
 
    for (int centr: CENTR)
    {
@@ -208,26 +217,51 @@ void BlastWaveGlobal(string chargeFlag = "all")
       funcx->SetParNames("constant", "T", "beta", "mass", "pt");
       integ = new MyIntegFunc(funcx);
 
+      cout << paramsInit[0][1][0] << endl;
+
       for (int part: PARTS_ALL)
       {
+         int charge = part % 2;
          string ifuncxName = "BW_" + to_string(part);
          ifuncxGlobal[part][centr] = new TF1("ifuncx", integ, xmin, xmax, 4, ifuncxName.c_str());
-         ifuncxGlobal[part][centr]->FixParameter(3, masses[part]); 	    //	mass
-         ifuncxGlobal[part][centr]->SetParameter(0, con[part]);	        //	constant
-         ifuncxGlobal[part][centr]->SetParameter(1, 0.118);	            //	temp.
-         ifuncxGlobal[part][centr]->SetParameter(2, 0.75);	            //	beta
+         ifuncxGlobal[part][centr]->FixParameter(3, masses[part]); 	    
+         
+         if (setParams)
+            ifuncxGlobal[part][centr]->SetParameters(setParams);
+         else
+            ifuncxGlobal[part][centr]->SetParameters(paramsInit[charge][centr]);
 
-         ifuncxGlobal[part][centr]->SetParLimits(0, conmin[part], conmax[part]);	//	constant.
-         ifuncxGlobal[part][centr]->SetParLimits(1, 0.06, 0.2);          	        //	temp.
-         ifuncxGlobal[part][centr]->SetParLimits(2, 0.1, 0.99);	                    //	beta
+         for (int par = 0; par < 3; par++)
+         {
+            if (setParams)
+               ifuncxGlobal[part][centr]->SetParLimits(par, paramsInit[charge][centr][par] * 0.9, paramsInit[charge][centr][par] * 1.1);
+            else 
+               ifuncxGlobal[part][centr]->SetParLimits(par, paramsInit[charge][centr][par] * 0.9, paramsInit[charge][centr][par] * 1.1);
+         }
+
+         // double conMin = paramsInit[charge][centr][0] * 0.5;
+         // double conMax = paramsInit[charge][centr][0] * 1.5;
+         // ifuncxGlobal[part][centr]->SetParLimits(0, conMin, conMax);
+         // ifuncxGlobal[part][centr]->SetParLimits(1, 0.06, 0.13);          	 //	temp.
+         // ifuncxGlobal[part][centr]->SetParLimits(2, 0.3, 0.95);	          //	beta
       }
 
-      if (chargeFlag != "neg") GlobalFitCentr(centr, 0); // positive charged
-      if (chargeFlag != "pos") GlobalFitCentr(centr, 1); // negative charged
+      if (chargeFlag != "neg") GlobalFitCentr(paramsInit[0][centr], paramsGlobal, centr, 0); // positive charged
+      if (chargeFlag != "pos") GlobalFitCentr(paramsInit[1][centr], paramsGlobal, centr, 1); // negative charged
    }
 
-   if (chargeFlag != "neg") WriteParams(0);
-   if (chargeFlag != "pos") WriteParams(1);
+   if (chargeFlag != "neg") WriteParams(0, paramsGlobal);
+   if (chargeFlag != "pos") WriteParams(1, paramsGlobal);
 
    DrawFitSpectra();
+}
+
+void BlastWaveGlobal(string chargeFlag = "all")
+{
+   double setParams[5] = {0.1, 0.6, 300, 100, 0.1};
+   for (int i = 0; i < 3; i++)
+   {
+      BlastWaveGlobal_1Fit(chargeFlag, setParams);   
+   }
+   gROOT->ProcessLine(".q");
 }

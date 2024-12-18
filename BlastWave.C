@@ -60,38 +60,46 @@ void BlastWave( void )
         for (int centr: CENTR)
         {
             string ifuncxName = "MyIntegFunc_" + to_string(part) + "_" + to_string(centr);
-            ifuncx[part][centr] = new TF1("ifuncx", integ, xmin[centr], xmax[centr], 4, ifuncxName.c_str());
+            ifuncx[part][centr] = new TF1("ifuncx", integ, xmin[part], xmax[part], 4, ifuncxName.c_str());
 
-            double parResults[5];
-            getGlobalParams(part, centr, parResults);
-            if (parResults[0] == 0)
-                continue;
+            // ================== version1 Params from Global fit ============================
+            // double parResults[5];
+            // getGlobalParams(part, centr, parResults);
+            // if (parResults[0] == 0)
+            //     continue;
                 
-            cout <<parResults[0] << "  " << parResults[1]  << "  " << parResults[2] << endl;
-            ifuncx[part][centr]->SetParameters(parResults);
+            // ifuncx[part][centr]->SetParameters(parResults);
+            // for (int par = 0; par < 3; par++)
+            // {
+            //     ifuncx[part][centr]->SetParLimits(par, parResults[par] * 0.9, parResults[par] * 1.1);
+            // }
 
-            for (int par = 0; par < 3; par++)
-            {
-                ifuncx[part][centr]->SetParLimits(par, parResults[par] * 0.9, parResults[par] * 1.1);
-            }
+            // ================= version 2 Params with limits =================================
+            // double customParams[4] = {con[part], 0.09, 0.75, masses[part]};
+            // ifuncx[part][centr]->SetParameters(customParams);
+            // ifuncx[part][centr]->SetParLimits(0, conmin[part], conmax[part]);
+            // ifuncx[part][centr]->SetParLimits(1, 0.8, 0.1);	
+            // ifuncx[part][centr]->SetParLimits(2, 0.5, 0.8);	
+            // ifuncx[part][centr]->FixParameter(3, masses[part]);	//	mass
 
-            ifuncx[part][centr]->SetParLimits(0, parResults[par] * 0.9, parResults[par] * 1.1);
-            ifuncx[part][centr]->FixParameter(3, masses[part]);	//	mass
+            // ================= version 3 hand Params without Fit =============================
+            double handParams[4] = {handConst[part][centr], handT[centr], handBeta[centr], masses[part]};
+            ifuncx[part][centr]->SetParameters(handParams);
 
             ifuncx[part][centr]->SetLineColor(centrColors[centr]);
-            grSpectra[part][centr]->Fit(ifuncx[part][centr],  "QR+", "", xmin[centr], xmax[centr]);
+            // grSpectra[part][centr]->Fit(ifuncx[part][centr],  "QR+", "", xmin[centr], xmax[centr]);
 
-            constPar[part][centr] = ifuncx[part][centr]->GetParameter(0);
-            Tpar[part][centr] = ifuncx[part][centr]->GetParameter(1);
-            utPar[part][centr] = ifuncx[part][centr]->GetParameter(2);
-            Tpar_err[part][centr] = ifuncx[part][centr]->GetParError(1);
-            utPar_err[part][centr] = ifuncx[part][centr]->GetParError(2);
+            // constPar[part][centr] = ifuncx[part][centr]->GetParameter(0);
+            // Tpar[part][centr] = ifuncx[part][centr]->GetParameter(1);
+            // utPar[part][centr] = ifuncx[part][centr]->GetParameter(2);
+            // Tpar_err[part][centr] = ifuncx[part][centr]->GetParError(1);
+            // utPar_err[part][centr] = ifuncx[part][centr]->GetParError(2);
 
             if (isContour) GetContourPlots(part,  centr);    
         }
     }
 
-    WriteParams();
+    // WriteParams();
 
     // ++++++ Draw spectra +++++++++++++++++++++++++++++++++++++
 

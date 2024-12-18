@@ -16,6 +16,8 @@
         "Cumulative.C": "cpp",
         "cmath": "cpp",
         "iostream": "cpp",
-        "BlastWaveGlobalAllParts.C": "cpp"
+        "BlastWaveGlobalAllParts.C": "cpp",
+        "BlastWaveGlobal copy.C": "cpp",
+        "BlastWaveGlobal_MultiTimes.C": "cpp"
     }
 }

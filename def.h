@@ -100,7 +100,7 @@ void SetSpectra(string inputFileName = "postprocess_mpdpid10", string type = "pt
             cout << name << endl;
             hSpectra[i][centr] = (TH1D *)fd->Get(name.c_str());    
             
-
+            if (!hSpectra[i][centr]) continue;
             const int N_BINS = hSpectra[i][centr]->GetNbinsX();
             double mT[N_BINS], pT[N_BINS], sp[N_BINS], sp_err[N_BINS], xerr[N_BINS];
             for (int bin = 1; bin < N_BINS; bin++)

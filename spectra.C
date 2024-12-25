@@ -6,7 +6,8 @@ using namespace std;
 void spectra( int systN = 0 )
 {
     // ++++++ Read data +++++++++++++++++++++++++++++++++++++
-    string inputFileName = "postprocess_mpdpid10";
+    // string inputFileName = "postprocess_mpdpid10";
+    string inputFileName = "postprocess_test-XeW";
     SetSpectra(inputFileName, "pt");
 
     // ++++++ Draw spectra +++++++++++++++++++++++++++++++++++++
@@ -36,16 +37,17 @@ void spectra( int systN = 0 )
         FormatSpectraPad(texScale);
         for (int centr: CENTR)
         {
+            if (!grSpectra[i][centr]) continue;
             grSpectra[i][centr]->Draw("SAME");      
             legend->AddEntry(grSpectra[i][centr], centrTitles[centr].c_str(), "l");        
         }
         legend->Draw();
         titleTex->Draw();    
         
-        DrawCumulativeBorder(i, PAD_MIN, PAD_MAX);
+       // DrawCumulativeBorder(i, PAD_MIN, PAD_MAX);
     }
 
-    c2->SaveAs(("output/spectra_" + inputFileName + ".pdf").c_str());
+    c2->SaveAs(("output/spectra_XeW_" + inputFileName + ".pdf").c_str());
     delete c2;
 }
 

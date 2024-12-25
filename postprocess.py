@@ -1467,79 +1467,83 @@ def draw_b3he3(canvas, cbin, fname):
 #     - 'uncor' - For the uncorrected reconstructed phase space.
 #     - 'corr' - For the corrected reconstructed phase space.
 def make_pt_spectra_mpdpid(do_corr, do_dedx, particle, cbin, psname, postfix):
-    order = 0
-    CURRENT_ST[order] += 1
-    function_name = sys._getframe().f_code.co_name
-    if skip_function(function_name, order): return
+    try:
+        order = 0
+        CURRENT_ST[order] += 1
+        function_name = sys._getframe().f_code.co_name
+        if skip_function(function_name, order): return
 
-    cbins    = list(Centrality)[cbin]
-    cname    = f'{cbins[0]} - {cbins[1]}%'
+        cbins    = list(Centrality)[cbin]
+        cname    = f'{cbins[0]} - {cbins[1]}%'
 
-    if((postfix == 'uncorr' or postfix == 'corr') and do_dedx):
-        postfix=f'{postfix}_dedx'
-    elif ((postfix == 'uncorr' or postfix == 'corr') and not do_dedx):
-        postfix=f'{postfix}'
-    hPhaseSpace = INP_FILE.Get(psname).Clone(f'phasespace_{postfix}_{particle}_centrality{cbin}') # The selected phase-space
-    hEvents = INP_FILE.Get('h__events').Clone('hEvents')                                          # The histogram with the events number for the each centrality bin
-    name_ptspectra = f'h__pt_{particle}_centrality{cbin}_{postfix}'                               # This is the histogram name in the output ROOT file
+        if((postfix == 'uncorr' or postfix == 'corr') and do_dedx):
+            postfix=f'{postfix}_dedx'
+        elif ((postfix == 'uncorr' or postfix == 'corr') and not do_dedx):
+            postfix=f'{postfix}'
+        hPhaseSpace = INP_FILE.Get(psname).Clone(f'phasespace_{postfix}_{particle}_centrality{cbin}') # The selected phase-space
+        hEvents = INP_FILE.Get('h__events').Clone('hEvents')                                          # The histogram with the events number for the each centrality bin
+        name_ptspectra = f'h__pt_{particle}_centrality{cbin}_{postfix}'                               # This is the histogram name in the output ROOT file
 
-    # To obtain the final reconstructed spectra the uncorrected phase-space must be corrected by the efficiencies and contamination
-    if(do_corr): 
-      # --- TPC, Secondaries
-        # ------- efficiency
-        apply_efficiency(hPhaseSpace, OUT_FILE.Get(f'{particle}/h__efficiency_tpc_{particle}_centrality{cbin}').Clone('eff'))
-        # ------- contamination
-        apply_contamination(hPhaseSpace, OUT_FILE.Get(f'{particle}/h__contamination_secondaries_{particle}_centrality{cbin}').Clone('cont'))
-
-        if(do_dedx):
-          # --- PID TPC only (dE/dx)
+        # To obtain the final reconstructed spectra the uncorrected phase-space must be corrected by the efficiencies and contamination
+        if(do_corr): 
+        # --- TPC, Secondaries
             # ------- efficiency
-            apply_efficiency(hPhaseSpace, OUT_FILE.Get(f'{particle}/h__efficiency_pid_dedx_{particle}_centrality{cbin}').Clone('eff'))
+            apply_efficiency(hPhaseSpace, OUT_FILE.Get(f'{particle}/h__efficiency_tpc_{particle}_centrality{cbin}').Clone('eff'))
             # ------- contamination
-            apply_contamination(hPhaseSpace, OUT_FILE.Get(f'{particle}/h__contamination_pid_dedx_{particle}_centrality{cbin}').Clone('cont'))
-        else:
-          # --- ToF
-            # ------- efficiency
-            apply_efficiency(hPhaseSpace, OUT_FILE.Get(f'{particle}/h__efficiency_tof_{particle}_centrality{cbin}').Clone('eff'))
-          # --- PID combined
-            # ------- efficiency
-            apply_efficiency(hPhaseSpace, OUT_FILE.Get(f'{particle}/h__efficiency_pid_{particle}_centrality{cbin}').Clone('eff'))
-            # ------- contamination
-            apply_contamination(hPhaseSpace, OUT_FILE.Get(f'{particle}/h__contamination_pid_{particle}_centrality{cbin}').Clone('cont'))
+            apply_contamination(hPhaseSpace, OUT_FILE.Get(f'{particle}/h__contamination_secondaries_{particle}_centrality{cbin}').Clone('cont'))
+
+            if(do_dedx):
+            # --- PID TPC only (dE/dx)
+                # ------- efficiency
+                apply_efficiency(hPhaseSpace, OUT_FILE.Get(f'{particle}/h__efficiency_pid_dedx_{particle}_centrality{cbin}').Clone('eff'))
+                # ------- contamination
+                apply_contamination(hPhaseSpace, OUT_FILE.Get(f'{particle}/h__contamination_pid_dedx_{particle}_centrality{cbin}').Clone('cont'))
+            else:
+            # --- ToF
+                # ------- efficiency
+                apply_efficiency(hPhaseSpace, OUT_FILE.Get(f'{particle}/h__efficiency_tof_{particle}_centrality{cbin}').Clone('eff'))
+            # --- PID combined
+                # ------- efficiency
+                apply_efficiency(hPhaseSpace, OUT_FILE.Get(f'{particle}/h__efficiency_pid_{particle}_centrality{cbin}').Clone('eff'))
+                # ------- contamination
+                apply_contamination(hPhaseSpace, OUT_FILE.Get(f'{particle}/h__contamination_pid_{particle}_centrality{cbin}').Clone('cont'))
 
 
-    dn = hEvents.GetBinContent(cbin+1)      # The number of events in the selected centrality bin
-    hPhaseSpace.Scale(1./ dn)               # The phase-space is also scaled by the number of events
-    OUT_FILE.cd(f'{particle}')
-    hPhaseSpace.Write()                         # The corrected phase-space is written to the output ROOT file
-    for rbin in range(len(rapidity_bins)):      # Now, for the each rapidity bin
-        rb_low = rapidity_bins[rbin][0]         #   the lower and
-        rb_high = rapidity_bins[rbin][1]        #   the upper edge is selected,
-        rb_width = math.fabs(rb_high - rb_low)  #   the rapidity bin width is calculated
+        dn = hEvents.GetBinContent(cbin+1)      # The number of events in the selected centrality bin
+        if dn == 0: return
+        hPhaseSpace.Scale(1./ dn)               # The phase-space is also scaled by the number of events
+        OUT_FILE.cd(f'{particle}')
+        hPhaseSpace.Write()                         # The corrected phase-space is written to the output ROOT file
+        for rbin in range(len(rapidity_bins)):      # Now, for the each rapidity bin
+            rb_low = rapidity_bins[rbin][0]         #   the lower and
+            rb_high = rapidity_bins[rbin][1]        #   the upper edge is selected,
+            rb_width = math.fabs(rb_high - rb_low)  #   the rapidity bin width is calculated
 
-        for hbin in range(1, hPhaseSpace.GetNbinsX()):                                             # In this loop the number
-            if(math.fabs(hPhaseSpace.GetXaxis().GetBinLowEdge(hbin) - rb_low) < SMALL_DELTA):      #   of the lower phase-space bin
-                left_edge = hbin                                                                   #   along the X-axis (rapidity) is calculated
-                break
-        right_edge = int(left_edge + rb_width / hPhaseSpace.GetXaxis().GetBinWidth(left_edge) - 1) # Then the upper bin number
-        res_name = f'{name_ptspectra}_y{rb_low}_{rb_high}'
-        hResult = hPhaseSpace.ProjectionY(res_name, left_edge, right_edge)                         # The Y projection within these bin range ([lower, upper]) is selected
-        hResult.Scale(1./ rb_width)                                                                #   and scaled by the rapidity bin width (otherwise it will be a sum)
-        for k in range(1, hResult.GetSize() - 1):                                                  # Now, for the each bin of the projection:
-            content = hResult.GetBinContent(k)                                                     #   N is extracted as the bin content
-            if(content <= 0):                                                                      #   If there is no content in the bin
-                continue                                                                           #     skip it
-            pt_binw = hResult.GetBinWidth(k)                                                       #   dpT is extracted as the bin width
-            pt_mean = hResult.GetBinCenter(k)                                                      #   pT is extracted as the bin center
-            error   = hResult.GetBinError(k)                                                       #   The bin error is extracted too
-            hResult.SetBinContent(k, content / (pt_mean * pt_binw))                                #   The new bin content is calculated: N / pt * dpt * dy (dy -- on the previous step)
-            hResult.SetBinError(k, error / (pt_mean * pt_binw))                                    #   as well as the new bin error
-        hResult.GetXaxis().SetTitle('p_{T}, GeV/c')                                                # The X-axis title
-        hResult.GetYaxis().SetTitle('d^{2}n/p_{T}dp_{T}dy')                                        # The Y-axis title
-        hResult.SetTitle(f'{SYS}, {particle}, {cname}, {rb_low} < y < {rb_high}')                  # The histogram title
-        hResult.Write()                                                                            # The histogram is written to the output ROOT file
-    OUT_FILE.cd()
-    write_status(f'{function_name} {CURRENT_ST[order]}')
+            for hbin in range(1, hPhaseSpace.GetNbinsX()):                                             # In this loop the number
+                if(math.fabs(hPhaseSpace.GetXaxis().GetBinLowEdge(hbin) - rb_low) < SMALL_DELTA):      #   of the lower phase-space bin
+                    left_edge = hbin                                                                   #   along the X-axis (rapidity) is calculated
+                    break
+            right_edge = int(left_edge + rb_width / hPhaseSpace.GetXaxis().GetBinWidth(left_edge) - 1) # Then the upper bin number
+            res_name = f'{name_ptspectra}_y{rb_low}_{rb_high}'
+            hResult = hPhaseSpace.ProjectionY(res_name, left_edge, right_edge)                         # The Y projection within these bin range ([lower, upper]) is selected
+            hResult.Scale(1./ rb_width)                                                                #   and scaled by the rapidity bin width (otherwise it will be a sum)
+            for k in range(1, hResult.GetSize() - 1):                                                  # Now, for the each bin of the projection:
+                content = hResult.GetBinContent(k)                                                     #   N is extracted as the bin content
+                if(content <= 0):                                                                      #   If there is no content in the bin
+                    continue                                                                           #     skip it
+                pt_binw = hResult.GetBinWidth(k)                                                       #   dpT is extracted as the bin width
+                pt_mean = hResult.GetBinCenter(k)                                                      #   pT is extracted as the bin center
+                error   = hResult.GetBinError(k)                                                       #   The bin error is extracted too
+                hResult.SetBinContent(k, content / (pt_mean * pt_binw))                                #   The new bin content is calculated: N / pt * dpt * dy (dy -- on the previous step)
+                hResult.SetBinError(k, error / (pt_mean * pt_binw))                                    #   as well as the new bin error
+            hResult.GetXaxis().SetTitle('p_{T}, GeV/c')                                                # The X-axis title
+            hResult.GetYaxis().SetTitle('d^{2}n/p_{T}dp_{T}dy')                                        # The Y-axis title
+            hResult.SetTitle(f'{SYS}, {particle}, {cname}, {rb_low} < y < {rb_high}')                  # The histogram title
+            hResult.Write()                                                                            # The histogram is written to the output ROOT file
+        OUT_FILE.cd()
+        write_status(f'{function_name} {CURRENT_ST[order]}')
+    except:
+        return
 
 
 
@@ -1761,57 +1765,60 @@ def draw_pt_spectra_evpid(canvas, p_pos, cbin, fname):
 #  \param particle The particle name (p, d, He4 etc)
 #  \param cbin The centrality bin (0, 1, 2, etc)
 def make_overall_efficiency(do_dedx, particle, cbin):
-    order = 5
-    CURRENT_ST[order] += 1
-    function_name = sys._getframe().f_code.co_name
-    if skip_function(function_name, order): return
-    cbins    = list(Centrality)[cbin]
-    cname    = f'{cbins[0]} - {cbins[1]}%'
+    try:
+        order = 5
+        CURRENT_ST[order] += 1
+        function_name = sys._getframe().f_code.co_name
+        if skip_function(function_name, order): return
+        cbins    = list(Centrality)[cbin]
+        cname    = f'{cbins[0]} - {cbins[1]}%'
 
-    # ------- efficiency
-    eff = OUT_FILE.Get(f'{particle}/h__efficiency_tpc_{particle}_centrality{cbin}').Clone('EFF')  # The TPC efficiency
-    overall_efficiency = eff.Clone(f'h__overall_efficiency_{particle}_centrality{cbin}')
-    eff = OUT_FILE.Get(f'{particle}/h__efficiency_tof_{particle}_centrality{cbin}').Clone('EFF')  # The ToF efficiency
-    overall_efficiency.Multiply(eff)
-    eff = OUT_FILE.Get(f'{particle}/h__efficiency_pid_{particle}_centrality{cbin}').Clone('EFF')  # The PID efficiency
-    overall_efficiency.Multiply(eff)
+        # ------- efficiency
+        eff = OUT_FILE.Get(f'{particle}/h__efficiency_tpc_{particle}_centrality{cbin}').Clone('EFF')  # The TPC efficiency
+        overall_efficiency = eff.Clone(f'h__overall_efficiency_{particle}_centrality{cbin}')
+        eff = OUT_FILE.Get(f'{particle}/h__efficiency_tof_{particle}_centrality{cbin}').Clone('EFF')  # The ToF efficiency
+        overall_efficiency.Multiply(eff)
+        eff = OUT_FILE.Get(f'{particle}/h__efficiency_pid_{particle}_centrality{cbin}').Clone('EFF')  # The PID efficiency
+        overall_efficiency.Multiply(eff)
 
-    # ------- contamination
-    cont  = OUT_FILE.Get(f'{particle}/h__contamination_secondaries_{particle}_centrality{cbin}').Clone('CONT')  # The secondaries contamination
-    overall_contamination = cont.Clone(f'h__overall_contamination_{particle}_centrality{cbin}')
-    cont  = OUT_FILE.Get(f'{particle}/h__contamination_pid_{particle}_centrality{cbin}').Clone('CONT')          # The PID contamination
-    overall_contamination.Multiply(cont)
+        # ------- contamination
+        cont  = OUT_FILE.Get(f'{particle}/h__contamination_secondaries_{particle}_centrality{cbin}').Clone('CONT')  # The secondaries contamination
+        overall_contamination = cont.Clone(f'h__overall_contamination_{particle}_centrality{cbin}')
+        cont  = OUT_FILE.Get(f'{particle}/h__contamination_pid_{particle}_centrality{cbin}').Clone('CONT')          # The PID contamination
+        overall_contamination.Multiply(cont)
 
-    OUT_FILE.cd(f'{particle}')
-    overall_efficiency.Write()     # The overall efficiency is written to the output ROOT file
-    overall_contamination.Write()  # The overall contamination is written to the output ROOT file
-    # The overall efficiency for the ach rapidity bin
-    for rbin in range(len(rapidity_bins)):      # So, for the each rapidity bin
-        rb_low = rapidity_bins[rbin][0]         #   the lower and
-        rb_high = rapidity_bins[rbin][1]        #   the upper edge is selected,
-        rb_width = math.fabs(rb_high - rb_low)  #   the rapidity bin width is calculated
+        OUT_FILE.cd(f'{particle}')
+        overall_efficiency.Write()     # The overall efficiency is written to the output ROOT file
+        overall_contamination.Write()  # The overall contamination is written to the output ROOT file
+        # The overall efficiency for the ach rapidity bin
+        for rbin in range(len(rapidity_bins)):      # So, for the each rapidity bin
+            rb_low = rapidity_bins[rbin][0]         #   the lower and
+            rb_high = rapidity_bins[rbin][1]        #   the upper edge is selected,
+            rb_width = math.fabs(rb_high - rb_low)  #   the rapidity bin width is calculated
 
-        for hbin in range(1, overall_efficiency.GetNbinsX()):                                             # In this loop the number
-            if(math.fabs(overall_efficiency.GetXaxis().GetBinLowEdge(hbin) - rb_low) < SMALL_DELTA):      #   of the lower phase-space bin
-                left_edge = hbin                                                                          #   along the X-axis (rapidity) is calculated
-                break
-        right_edge = int(left_edge + rb_width / overall_efficiency.GetXaxis().GetBinWidth(left_edge) - 1) # Then the upper bin number
-        res_name_eff  = f'overall_efficiency_{particle}_centrality{cbin}_y{rb_low}_{rb_high}'
-        res_name_cont = f'overall_contamination_{particle}_centrality{cbin}_y{rb_low}_{rb_high}'
-        eResult = overall_efficiency.ProjectionY(res_name_eff, left_edge, right_edge)     # The Y projection within these bin range ([lower, upper]) is selected
-        eResult.Scale(1. / (right_edge - left_edge))                                      #   and scaled by the number of projected bins
-        eResult.GetXaxis().SetTitle('p_{T}, GeV/c')                                       # The projection X-axis title
-        eResult.GetYaxis().SetTitle('Overall efficiency')                                 # The projection Y-axis title
-        eResult.SetTitle(f'{SYS}, {particle}, {cname}, {rb_low} < y < {rb_high}')         # The projection title
-        eResult.Write()                                                                   # The projection is written to the outpur ROOT file
-        cResult = overall_contamination.ProjectionY(res_name_cont, left_edge, right_edge) # Same for the overall contamination histograms
-        cResult.Scale(1. / (right_edge - left_edge))
-        cResult.GetXaxis().SetTitle('p_{T}, GeV/c')
-        cResult.GetYaxis().SetTitle('Overall contamination')
-        cResult.SetTitle(f'{SYS}, {particle}, {cname}, {rb_low} < y < {rb_high}')
-        cResult.Write()
-    OUT_FILE.cd()
-    write_status(f'{function_name} {CURRENT_ST[order]}')
+            for hbin in range(1, overall_efficiency.GetNbinsX()):                                             # In this loop the number
+                if(math.fabs(overall_efficiency.GetXaxis().GetBinLowEdge(hbin) - rb_low) < SMALL_DELTA):      #   of the lower phase-space bin
+                    left_edge = hbin                                                                          #   along the X-axis (rapidity) is calculated
+                    break
+            right_edge = int(left_edge + rb_width / overall_efficiency.GetXaxis().GetBinWidth(left_edge) - 1) # Then the upper bin number
+            res_name_eff  = f'overall_efficiency_{particle}_centrality{cbin}_y{rb_low}_{rb_high}'
+            res_name_cont = f'overall_contamination_{particle}_centrality{cbin}_y{rb_low}_{rb_high}'
+            eResult = overall_efficiency.ProjectionY(res_name_eff, left_edge, right_edge)     # The Y projection within these bin range ([lower, upper]) is selected
+            eResult.Scale(1. / (right_edge - left_edge))                                      #   and scaled by the number of projected bins
+            eResult.GetXaxis().SetTitle('p_{T}, GeV/c')                                       # The projection X-axis title
+            eResult.GetYaxis().SetTitle('Overall efficiency')                                 # The projection Y-axis title
+            eResult.SetTitle(f'{SYS}, {particle}, {cname}, {rb_low} < y < {rb_high}')         # The projection title
+            eResult.Write()                                                                   # The projection is written to the outpur ROOT file
+            cResult = overall_contamination.ProjectionY(res_name_cont, left_edge, right_edge) # Same for the overall contamination histograms
+            cResult.Scale(1. / (right_edge - left_edge))
+            cResult.GetXaxis().SetTitle('p_{T}, GeV/c')
+            cResult.GetYaxis().SetTitle('Overall contamination')
+            cResult.SetTitle(f'{SYS}, {particle}, {cname}, {rb_low} < y < {rb_high}')
+            cResult.Write()
+        OUT_FILE.cd()
+        write_status(f'{function_name} {CURRENT_ST[order]}')
+    except:
+        return
 
 
 
@@ -1918,13 +1925,16 @@ def make_fancy_histogram(hist, mstyle, mcolor, lstyle, lcolor, msize = None, lwi
 #  \param res The resulting histogram name
 #  \param particle The particle name (p, d, He4 etc)
 def calculate_efficiency(num, denom, res, particle):
-    hNumerator   = EFF_FILE.Get(num).Clone('hNumerator')      # The efficiency numerator
-    hDenominator = EFF_FILE.Get(denom).Clone('hDenominator')  # The efficiency denominator
-    hEfficiency  = hNumerator.Clone(res)                      # The efficiency histogram initialization
-    hEfficiency.Divide(hDenominator)                          # The efficiency is calculated as 'Efficiency = Numerator / Denominator'
-    OUT_FILE.cd(f'{particle}')                                # Go to the current particle folder in the output ROOT file
-    hEfficiency.Write()                                       # Write the efficiency histogram
-    OUT_FILE.cd()                                             # Go back to the '/' of the output ROOT file
+    try:
+        hNumerator   = EFF_FILE.Get(num).Clone('hNumerator')      # The efficiency numerator
+        hDenominator = EFF_FILE.Get(denom).Clone('hDenominator')  # The efficiency denominator
+        hEfficiency  = hNumerator.Clone(res)                      # The efficiency histogram initialization
+        hEfficiency.Divide(hDenominator)                          # The efficiency is calculated as 'Efficiency = Numerator / Denominator'
+        OUT_FILE.cd(f'{particle}')                                # Go to the current particle folder in the output ROOT file
+        hEfficiency.Write()                                       # Write the efficiency histogram
+        OUT_FILE.cd()                                             # Go back to the '/' of the output ROOT file
+    except:
+        return
 
 
 

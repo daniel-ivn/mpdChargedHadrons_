@@ -7,7 +7,7 @@ void GetContourPlots( int part, int centr )
 {
     for (int s = 1; s < N_SIGMA; s++)
     {
-        gMinuit->SetErrorDef(s * 4); //note 4 and not 2!
+        gMinuit->SetErrorDef(s * 8); //note 4 and not 2!
         contour[part][centr][s] = (TGraph*)gMinuit->Contour(40, 2, 1);
         if (contour[part][centr][s]) 
         {
@@ -41,6 +41,7 @@ void WriteParams( const char filename[30] = "output/BWparams.txt" )
 void BlastWave( void )
 {
     bool isContour = false;
+    bool isDraw = true;
     // ++++++ Read data +++++++++++++++++++++++++++++++++++++
 
     string inputFileName = "postprocess_mpdpid10";
@@ -63,16 +64,25 @@ void BlastWave( void )
             ifuncx[part][centr] = new TF1("ifuncx", integ, xmin[part], xmax[part], 4, ifuncxName.c_str());
 
             // ================== version1 Params from Global fit ============================
-            // double parResults[5];
-            // getGlobalParams(part, centr, parResults);
-            // if (parResults[0] == 0)
-            //     continue;
+            double parResults[5];
+            ReadGlobalParams(paramsGlobal);
+            getGlobalParams(part, centr, parResults);
+            if (parResults[0] == 0)
+                continue;
                 
-            // ifuncx[part][centr]->SetParameters(parResults);
-            // for (int par = 0; par < 3; par++)
-            // {
-            //     ifuncx[part][centr]->SetParLimits(par, parResults[par] * 0.9, parResults[par] * 1.1);
-            // }
+            parResults[2] = parResults[2] > 0.8 ? 0.8 : parResults[2];
+            parResults[2] = (parResults[2] > 0.6) ? 0.6 : parResults[2];
+            ifuncx[part][centr]->SetParameters(parResults);
+            for (int par = 0; par < 3; par++)
+            {
+                ifuncx[part][centr]->SetParLimits(par, parResults[par] * 0.6, parResults[par] * 1.3);
+                if (part <= 1 && par == 2) 
+                    ifuncx[part][centr]->SetParLimits(par, parResults[par] * 0.5, parResults[par]);
+            }
+
+            ifuncx[part][centr]->FixParameter(3, masses[part]);
+            grSpectra[part][centr]->Fit(ifuncx[part][centr],  "QR+", "", xmin[part], xmax[part]);
+            // ====================================================================================
 
             // ================= version 2 Params with limits =================================
             // double customParams[4] = {con[part], 0.09, 0.75, masses[part]};
@@ -81,26 +91,30 @@ void BlastWave( void )
             // ifuncx[part][centr]->SetParLimits(1, 0.8, 0.1);	
             // ifuncx[part][centr]->SetParLimits(2, 0.5, 0.8);	
             // ifuncx[part][centr]->FixParameter(3, masses[part]);	//	mass
-
+            // grSpectra[part][centr]->Fit(ifuncx[part][centr],  "QR+", "", xmin[part], xmax[part]);
+            // ====================================================================================
+            
             // ================= version 3 hand Params without Fit =============================
-            double handParams[4] = {handConst[part][centr], handT[centr], handBeta[centr], masses[part]};
-            ifuncx[part][centr]->SetParameters(handParams);
+            // double handParams[4] = {handConst[part][centr], handT[centr], handBeta[centr], masses[part]};
+            // ifuncx[part][centr]->SetParameters(handParams);
+            // ====================================================================================
 
             ifuncx[part][centr]->SetLineColor(centrColors[centr]);
-            // grSpectra[part][centr]->Fit(ifuncx[part][centr],  "QR+", "", xmin[centr], xmax[centr]);
+            
 
-            // constPar[part][centr] = ifuncx[part][centr]->GetParameter(0);
-            // Tpar[part][centr] = ifuncx[part][centr]->GetParameter(1);
-            // utPar[part][centr] = ifuncx[part][centr]->GetParameter(2);
-            // Tpar_err[part][centr] = ifuncx[part][centr]->GetParError(1);
-            // utPar_err[part][centr] = ifuncx[part][centr]->GetParError(2);
+            constPar[part][centr] = ifuncx[part][centr]->GetParameter(0);
+            Tpar[part][centr] = ifuncx[part][centr]->GetParameter(1);
+            utPar[part][centr] = ifuncx[part][centr]->GetParameter(2);
+            Tpar_err[part][centr] = ifuncx[part][centr]->GetParError(1);
+            utPar_err[part][centr] = ifuncx[part][centr]->GetParError(2);
 
             if (isContour) GetContourPlots(part,  centr);    
         }
     }
 
-    // WriteParams();
-
+    WriteParams();
+    if (!isDraw)
+        return;
     // ++++++ Draw spectra +++++++++++++++++++++++++++++++++++++
 
     TCanvas *c2 = new TCanvas("c2", "c2", 29, 30, 1200, 1200);
@@ -143,7 +157,11 @@ void BlastWave( void )
     c2->SaveAs("output/BlastWave.pdf");
     delete c2;
 
-    if (!isContour) return;
+    
+    if (!isContour) {
+        gROOT->ProcessLine(".q");
+        return;
+    }
 
     // //++++++++ Draw Contour plots ++++++++++++++++++++++++++++++
 
@@ -181,6 +199,6 @@ void BlastWave( void )
     legendContour->Draw();
 
     c3->SaveAs("output/BlastWave_contour.pdf");
-
+    gROOT->ProcessLine(".q");
 }
 

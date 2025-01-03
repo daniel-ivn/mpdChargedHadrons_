@@ -51,4 +51,5 @@ void BWDrawParams ( void )
     ReadParams();
     DrawParam("T");
     DrawParam("ut");
+    gROOT->ProcessLine(".q");
 }

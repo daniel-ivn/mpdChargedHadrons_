@@ -10,9 +10,11 @@ void ReadGlobalParams( double paramsGlobal[2][N_CENTR][5], const char filename[3
     {
         for (int centr: CENTR)
         {
-        txtFile >> charge >> centr 
-                >> paramsGlobal[charge][centr][0] >> paramsGlobal[charge][centr][1]
-                >> paramsGlobal[charge][centr][2] >> paramsGlobal[charge][centr][3] >> paramsGlobal[charge][centr][4];
+            txtFile >> charge >> centr 
+                    >> paramsGlobal[charge][centr][0] >> paramsGlobal[charge][centr][1]
+                    >> paramsGlobal[charge][centr][2] >> paramsGlobal[charge][centr][3] >> paramsGlobal[charge][centr][4];
+
+            // cout << paramsGlobal[charge][centr][0] << endl;
         }
         
         if( txtFile.eof() ) break;

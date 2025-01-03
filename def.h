@@ -16,7 +16,7 @@ const int MAX_CENTR = 10;
 const int MAX_PARTS = 6;
 const int N_CENTR = 6;
 const int N_PARTS = 6;
-const int N_SIGMA = 2;
+const int N_SIGMA = 3;
 const int PARTS[] = {0, 1, 2, 3, 4, 5};
 const int PARTS_POS[] = {0, 2, 4};
 const int PARTS_NEG[] = {1, 3, 5};
@@ -37,11 +37,11 @@ double centrX[10] = {5, 15, 25, 35, 45, 70};
 
 
 // =============== Для  BlastWave ======================
-// double xmin[] = {0.4, 0.2, 0.12, 0.4, 0.2, 0.12};
-// double xmax[] = {1, 1., 1, 1, 1, 1};
+double xmin[] = {0.7, 0.7, 0.12, 0.4, 0.2, 0.12};
+double xmax[] = {1.3, 1.3, 1, 1, 1, 1};
 
-double xmin[] = {0.1, 0.1, 0.1, 0.1, 0.1, 0.1};
-double xmax[] = {4, 4, 4, 4, 4, 4, };
+// double xmin[] = {0.1, 0.1, 0.1, 0.1, 0.1, 0.1};
+// double xmax[] = {4, 4, 4, 4, 4, 4, };
 
 TGraph *contour[MAX_PARTS][N_CENTR][N_SIGMA];
 TF1 *ifuncx[MAX_PARTS][N_CENTR], *ifuncxGlobal[MAX_PARTS][N_CENTR];
@@ -77,6 +77,7 @@ double handConst[MAX_PARTS][MAX_CENTR] =
 void getGlobalParams( int part, int centr, double parResults[4] )
 {
     int charge = part % 2; 
+
     parResults[0] = paramsGlobal[charge][centr][2 + part / 2];
     parResults[1] = paramsGlobal[charge][centr][0]; 
     parResults[2] = paramsGlobal[charge][centr][1]; 

@@ -1,120 +1,30 @@
 #include "def.h"
-#include "ReadFiles.h"
+#include "WriteReadFiles.h"
+#include "BlastWaveFit.h"
 
 using namespace std;
-
-void GetContourPlots( int part, int centr )
-{
-    for (int s = 1; s < N_SIGMA; s++)
-    {
-        gMinuit->SetErrorDef(s * 8); //note 4 and not 2!
-        contour[part][centr][s] = (TGraph*)gMinuit->Contour(40, 2, 1);
-        if (contour[part][centr][s]) 
-        {
-            contour[part][centr][s]->SetLineColor(partColors[part] + centr);
-            contour[part][centr][s]->SetFillStyle(0);
-        }
-        else 
-            cout << "ERROR " << part << " " <<centr << " " << s << endl;
-        
-    }
-}
-
-void WriteParams( const char filename[30] = "output/BWparams.txt" )
-{
-    ofstream txtFile;
-    txtFile.open(filename);
-
-    for (int part: PARTS)
-    {
-        for (int centr: CENTR)
-        {
-            txtFile << part << "  " << centr << "  " << constPar[part][centr] << "  "
-                    << Tpar[part][centr] << "   " << Tpar_err[part][centr] << "   "
-                    << utPar[part][centr] << "   " << utPar_err[part][centr] << endl;
-        }
-    }
-    
-    txtFile.close();
-}
 
 void BlastWave( void )
 {
     bool isContour = false;
     bool isDraw = true;
+
     // ++++++ Read data +++++++++++++++++++++++++++++++++++++
 
     string inputFileName = "postprocess_mpdpid10";
     SetSpectra(inputFileName, "mt");
 
     // +++++++++ Fit +++++++++++++++++++++++++++++++++++++++
+    BlastWaveFit *bwFit = new BlastWaveFit();
+    bwFit->Fit(0);
+    WriteParams(bwFit->outParams, bwFit->outParamsErr);
 
-    TVirtualFitter::SetDefaultFitter("Minuit");  
-    // TMinuit* minuit = new TMinuit(5); 
-    auto funcx = new TF1("funcx", bwfitfunc, 0.01, 10, 5);
-    funcx->SetParameters(2,1);
-    funcx->SetParNames("constant", "T", "beta", "mass", "pt");
-    MyIntegFunc *integ = new MyIntegFunc(funcx);
-
-    for (int part: PARTS)
-    {  
-        for (int centr: CENTR)
-        {
-            string ifuncxName = "MyIntegFunc_" + to_string(part) + "_" + to_string(centr);
-            ifuncx[part][centr] = new TF1("ifuncx", integ, xmin[part], xmax[part], 4, ifuncxName.c_str());
-
-            // ================== version1 Params from Global fit ============================
-            double parResults[5];
-            ReadGlobalParams(paramsGlobal);
-            getGlobalParams(part, centr, parResults);
-            if (parResults[0] == 0)
-                continue;
-                
-            parResults[2] = parResults[2] > 0.8 ? 0.8 : parResults[2];
-            parResults[2] = (parResults[2] > 0.6) ? 0.6 : parResults[2];
-            ifuncx[part][centr]->SetParameters(parResults);
-            for (int par = 0; par < 3; par++)
-            {
-                ifuncx[part][centr]->SetParLimits(par, parResults[par] * 0.6, parResults[par] * 1.3);
-                if (part <= 1 && par == 2) 
-                    ifuncx[part][centr]->SetParLimits(par, parResults[par] * 0.5, parResults[par]);
-            }
-
-            ifuncx[part][centr]->FixParameter(3, masses[part]);
-            grSpectra[part][centr]->Fit(ifuncx[part][centr],  "QR+", "", xmin[part], xmax[part]);
-            // ====================================================================================
-
-            // ================= version 2 Params with limits =================================
-            // double customParams[4] = {con[part], 0.09, 0.75, masses[part]};
-            // ifuncx[part][centr]->SetParameters(customParams);
-            // ifuncx[part][centr]->SetParLimits(0, conmin[part], conmax[part]);
-            // ifuncx[part][centr]->SetParLimits(1, 0.8, 0.1);	
-            // ifuncx[part][centr]->SetParLimits(2, 0.5, 0.8);	
-            // ifuncx[part][centr]->FixParameter(3, masses[part]);	//	mass
-            // grSpectra[part][centr]->Fit(ifuncx[part][centr],  "QR+", "", xmin[part], xmax[part]);
-            // ====================================================================================
-            
-            // ================= version 3 hand Params without Fit =============================
-            // double handParams[4] = {handConst[part][centr], handT[centr], handBeta[centr], masses[part]};
-            // ifuncx[part][centr]->SetParameters(handParams);
-            // ====================================================================================
-
-            ifuncx[part][centr]->SetLineColor(centrColors[centr]);
-            
-
-            constPar[part][centr] = ifuncx[part][centr]->GetParameter(0);
-            Tpar[part][centr] = ifuncx[part][centr]->GetParameter(1);
-            utPar[part][centr] = ifuncx[part][centr]->GetParameter(2);
-            Tpar_err[part][centr] = ifuncx[part][centr]->GetParError(1);
-            utPar_err[part][centr] = ifuncx[part][centr]->GetParError(2);
-
-            if (isContour) GetContourPlots(part,  centr);    
-        }
-    }
-
-    WriteParams();
+    // bwFit->Fit(1);
+    // WriteParams(bwFit->outParams, bwFit->outParams);
+   
     if (!isDraw)
         return;
+
     // ++++++ Draw spectra +++++++++++++++++++++++++++++++++++++
 
     TCanvas *c2 = new TCanvas("c2", "c2", 29, 30, 1200, 1200);
@@ -157,13 +67,12 @@ void BlastWave( void )
     c2->SaveAs("output/BlastWave.pdf");
     delete c2;
 
-    
     if (!isContour) {
         gROOT->ProcessLine(".q");
         return;
     }
 
-    // //++++++++ Draw Contour plots ++++++++++++++++++++++++++++++
+    //++++++++ Draw Contour plots ++++++++++++++++++++++++++++++
 
     TCanvas *c3 = new TCanvas("c3", "c3", 29, 30, 1200, 1200);
     c3->cd();

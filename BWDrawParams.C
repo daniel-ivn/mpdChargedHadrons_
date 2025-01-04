@@ -1,5 +1,9 @@
 #include "def.h"
-#include "ReadFiles.h"
+#include "WriteReadFiles.h"
+
+double constPar[MAX_PARTS][N_CENTR],
+       Tpar[N_PARTS][N_CENTR], Tpar_err[N_PARTS][N_CENTR], 
+       utPar[N_PARTS][N_CENTR], utPar_err[N_PARTS][N_CENTR];
 
 void DrawParam(string paramName = "T")
 {
@@ -48,7 +52,8 @@ void DrawParam(string paramName = "T")
 
 void BWDrawParams ( void )
 {
-    ReadParams();
+    ReadParam(1, Tpar, Tpar_err);
+    ReadParam(2, utPar, utPar_err);
     DrawParam("T");
     DrawParam("ut");
     gROOT->ProcessLine(".q");

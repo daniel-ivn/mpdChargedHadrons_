@@ -8,6 +8,7 @@
 #include "HFitInterface.h"
 #include "TCanvas.h"
 #include "TStyle.h"
+#include "WriteReadFiles.h"
 #include "def.h"
 
 int ipar0[3] = {2, 0, 1};
@@ -15,28 +16,6 @@ int ipar2[3] = {3, 0, 1};
 int ipar4[3] = {4, 0, 1};
  
 bool isParamsFileExist = false;
-
-void WriteParams( int charge, const char filename[30] = "output/GlobalBWparams.txt" )
-{
-   cout << " WriteParams " << endl;
-   ofstream txtFile;
-   if (isParamsFileExist) 
-   {
-      txtFile.open(filename, ios::app);
-      txtFile << endl;
-   }
-   else txtFile.open(filename);
-
-   for (int centr: CENTR)
-   {
-      txtFile  << charge << "  "  << centr << "  " 
-               << paramsGlobal[charge][centr][0]  << "  " << paramsGlobal[charge][centr][1] << "  "
-               << paramsGlobal[charge][centr][2] << "   " << paramsGlobal[charge][centr][3] << "   " << paramsGlobal[charge][centr][4] << endl;
-   }
-    
-   txtFile.close();
-   isParamsFileExist = true;
-}
 
 // Create the GlobalCHi2 structure
 struct GlobalChi2 {
@@ -236,8 +215,8 @@ void BlastWaveGlobal(string chargeFlag = "all")
       if (chargeFlag != "pos") GlobalFitCentr(centr, 1); // negative charged
    }
 
-   if (chargeFlag != "neg") WriteParams(0);
-   if (chargeFlag != "pos") WriteParams(1);
+   if (chargeFlag != "neg") WriteGlobalParams(isParamsFileExist, 0);
+   if (chargeFlag != "pos") WriteGlobalParams(isParamsFileExist, 1);
 
    DrawFitSpectra();
 }

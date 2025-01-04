@@ -12,6 +12,7 @@
 #include "TLegend.h"
 #include "BlastWave.h"
 
+
 const int MAX_CENTR = 10;
 const int MAX_PARTS = 6;
 const int N_CENTR = 6;
@@ -46,9 +47,6 @@ double xmax[] = {1.3, 1.3, 1, 1, 1, 1};
 TGraph *contour[MAX_PARTS][N_CENTR][N_SIGMA];
 TF1 *ifuncx[MAX_PARTS][N_CENTR], *ifuncxGlobal[MAX_PARTS][N_CENTR];
 
-double constPar[MAX_PARTS][N_CENTR],
-       Tpar[MAX_PARTS][N_CENTR], Tpar_err[MAX_PARTS][N_CENTR], 
-       utPar[MAX_PARTS][N_CENTR], utPar_err[MAX_PARTS][N_CENTR];
 double paramsGlobal[2][N_CENTR][5]; // [2] - charge, 5 - количество параметров 1) T 2) ut 3) const pi 4) const K 5) const p
 // по частицам
 double con[]    = {10, 10, 1, 1, 0.1, 0.001};  
@@ -98,7 +96,6 @@ void SetSpectra(string inputFileName = "postprocess_mpdpid10", string type = "pt
         for (int centr = 0; centr < N_CENTR; centr++)
         {
             string name = "h__pt_" + particles[i] +"_centrality" + to_string(centr) + "_mc_y-0.5_0.5";
-            cout << name << endl;
             hSpectra[i][centr] = (TH1D *)fd->Get(name.c_str());    
             
             if (!hSpectra[i][centr]) continue;

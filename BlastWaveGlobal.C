@@ -215,8 +215,8 @@ void BlastWaveGlobal(string chargeFlag = "all")
       if (chargeFlag != "pos") GlobalFitCentr(centr, 1); // negative charged
    }
 
-   if (chargeFlag != "neg") WriteGlobalParams(isParamsFileExist, 0);
-   if (chargeFlag != "pos") WriteGlobalParams(isParamsFileExist, 1);
+   if (chargeFlag != "neg") WriteGlobalParams(&isParamsFileExist, 0);
+   if (chargeFlag != "pos") WriteGlobalParams(&isParamsFileExist, 1);
 
    DrawFitSpectra();
 }

@@ -3,11 +3,11 @@
 
 #include "def.h"
 
-void WriteGlobalParams( bool isParamsFileExist, int charge, const char filename[30] = "output/GlobalBWparams.txt" )
+void WriteGlobalParams( bool *isParamsFileExist, int charge, const char filename[30] = "output/GlobalBWparams.txt" )
 {
    cout << " WriteParams " << endl;
    ofstream txtFile;
-   if (isParamsFileExist) 
+   if (*isParamsFileExist) 
    {
       txtFile.open(filename, ios::app);
       txtFile << endl;
@@ -22,7 +22,7 @@ void WriteGlobalParams( bool isParamsFileExist, int charge, const char filename[
    }
     
    txtFile.close();
-   isParamsFileExist = true;
+   *isParamsFileExist = true;
 }
 
 void ReadGlobalParams( double paramsGlobal[2][N_CENTR][5], const char filename[30] = "output/GlobalBWparams.txt" )
@@ -63,6 +63,25 @@ void WriteParams( double par[N_PARTS][N_CENTR][4], double parErr[N_PARTS][N_CENT
             txtFile << part << "  " << centr << "  " << par[part][centr][0] << "  "
                     << par[part][centr][1] << "   " << parErr[part][centr][1] << "   "
                     << par[part][centr][2] << "   " << parErr[part][centr][2] << endl;
+        }
+    }
+    
+    txtFile.close();
+}
+
+void WriteParamsSyst( double par[N_PARTS][N_CENTR][4], double parErr[N_PARTS][N_CENTR][4], double parSyst[N_PARTS][N_CENTR][4],
+                  const char filename[30] = "output/BWparamsSyst.txt" )
+{
+    ofstream txtFile;
+    txtFile.open(filename);
+
+    for (int part: PARTS)
+    {
+        for (int centr: CENTR)
+        {
+            txtFile << part << "  " << centr << "  " << par[part][centr][0] << "  "
+                    << par[part][centr][1] << "   " << parErr[part][centr][1] << "   "  << parSyst[part][centr][1] << "   "
+                    << par[part][centr][2] << "   " << parErr[part][centr][2] << "   "  << parSyst[part][centr][2] << endl;
         }
     }
     
@@ -128,6 +147,30 @@ void ReadParam( int parN, double par[N_PARTS][N_CENTR], double parErr[N_PARTS][N
             f >> p >> c >> tmpPar[0] >> tmpPar[1] >> tmpParErr[1] >> tmpPar[2] >> tmpParErr[2];
             par[part][centr] = tmpPar[parN];
             parErr[part][centr] = tmpParErr[parN];
+        }
+    }
+    f.close();
+}
+
+void ReadParam( int parN, double par[N_PARTS][N_CENTR], double parErr[N_PARTS][N_CENTR], double parSyst[N_PARTS][N_CENTR],
+                 const char filename[30] = "output/BWparamsSyst.txt" )
+{
+    ifstream f;
+    f.open(filename);
+
+    int p, c;
+    double tmpPar[4] = {0, 0, 0, 0}, tmpParErr[4] = {0, 0, 0, 0}, tmpParSyst[4] = {0, 0, 0, 0};
+
+    for (int part: PARTS)
+    {
+        for (int centr: CENTR)
+        {
+            f >> p >> c 
+              >> tmpPar[0] >> tmpPar[1] >> tmpParErr[1] >> tmpParSyst[1] 
+              >> tmpPar[2] >> tmpParErr[2] >> tmpParSyst[2];
+            par[part][centr] = tmpPar[parN];
+            parErr[part][centr] = tmpParErr[parN];
+            parSyst[part][centr] = tmpParSyst[parN] * par[part][centr];
         }
     }
     f.close();

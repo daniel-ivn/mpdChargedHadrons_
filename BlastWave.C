@@ -18,9 +18,6 @@ void BlastWave( void )
     BlastWaveFit *bwFit = new BlastWaveFit();
     bwFit->Fit(0);
     WriteParams(bwFit->outParams, bwFit->outParamsErr);
-
-    // bwFit->Fit(1);
-    // WriteParams(bwFit->outParams, bwFit->outParams);
    
     if (!isDraw)
         return;

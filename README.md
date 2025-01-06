@@ -21,6 +21,8 @@ python postprocess.py -i 'input/mpdpid10.root' -d output -s input/settings.json
 **BlastWaveGlobal** - строит BlastWave GlobalFit. 
 output - BlastWaveGlobalFit.pdf, GlobalBWparams.txt
 
+**BlastWaveGlobalAllParts** - строит BlastWave GlobalFit одновременно по всем частицам. Плохо работает
+
 **BlastWave.C** - строит отдельные BlastWave фиты для каждой частицы, а в качетсве начальных параметров аппроксимации задаются параметры, полученные в ГлобалФите (output/GlobalBWparams.txt)
 
 ## BlastWave  12.2024
@@ -36,11 +38,17 @@ output - BlastWaveGlobalFit.pdf, GlobalBWparams.txt
 * output/BWparams.txt - параметаы фитов (part, centr, const, T, Terr, ut, ut_err)
 * output/BlastWave_contour.pdf - контурные графики (не очень работают)
 
+**BlastWaveFit.h** - фитирует БластВейвом различными способами (разные варианты задания начальных параметров). По умолчанию - 0.
+
+**BlastWaveSyst.C** - строит систематические погрешности для фитирования.
+* output/BWparamsSyst.txt 
+
 **BWDrawParams** - строит T и ut как функции от центральности по результатам output/BWparams.txt
 
 * output/BWparam_T.pdf 
 * output/BWparam_ut.pdf
 
+**WriteReadFiles.h** - запись считывание из txt файлов 
 
 ## Cumulative 12.12.2024
 

@@ -2,26 +2,40 @@
 #include "WriteReadFiles.h"
 
 double constPar[MAX_PARTS][N_CENTR],
-       Tpar[N_PARTS][N_CENTR], Tpar_err[N_PARTS][N_CENTR], 
-       utPar[N_PARTS][N_CENTR], utPar_err[N_PARTS][N_CENTR];
+       Tpar[N_PARTS][N_CENTR], Tpar_err[N_PARTS][N_CENTR], Tpar_sys[N_PARTS][N_CENTR], 
+       utPar[N_PARTS][N_CENTR], utPar_err[N_PARTS][N_CENTR], utPar_sys[N_PARTS][N_CENTR];
 
-void DrawParam(string paramName = "T")
+void DrawParam(string paramName = "T", bool isSyst = true)
 {
-    TGraphErrors *gr[N_PARTS];
-    double xerr[N_CENTR];
+    TGraphErrors *gr[N_PARTS], *grSys[N_PARTS];
+    double xerr[N_CENTR], xerrSys[N_CENTR];
 
-    for (int i: CENTR) xerr[i] = 0.;
+    for (int i: CENTR) xerr[i] = 0., xerrSys[i] = 1;
 
     for (int part: PARTS)
     {
         if (paramName == "T")
-            gr[part] = new TGraphErrors(N_CENTR, centrX, Tpar[part], xerr, xerr); // Tpar_err[part]);
+            gr[part] = new TGraphErrors(N_CENTR, centrX, Tpar[part], xerr, Tpar_err[part]);
         else if (paramName == "ut")
-            gr[part] = new TGraphErrors(N_CENTR, centrX, utPar[part], xerr, xerr); // utPar_err[part]);
+            gr[part] = new TGraphErrors(N_CENTR, centrX, utPar[part], xerr, utPar_err[part]);
         
         gr[part]->SetMarkerStyle(8);
         gr[part]->SetMarkerSize(2);
         gr[part]->SetMarkerColor(partColors[part]);
+
+        if (isSyst)
+        {
+            if (paramName == "T")
+                grSys[part] = new TGraphErrors(N_CENTR, centrX, Tpar[part], xerrSys, Tpar_sys[part]);
+            else if (paramName == "ut")
+                grSys[part] = new TGraphErrors(N_CENTR, centrX, utPar[part], xerrSys, utPar_sys[part]);
+            
+            grSys[part]->SetLineColorAlpha(partColors[part], 0.6);
+            grSys[part]->SetFillStyle(0);
+            grSys[part]->SetFillColorAlpha(partColors[part], 0.5);
+            grSys[part]->SetLineWidth(2);
+            grSys[part]->SetMarkerColorAlpha(partColors[part], 0.6);
+        }
     }
 
     TCanvas *c2 = new TCanvas("c2", "c2", 29, 30, 1200, 1000);
@@ -44,6 +58,8 @@ void DrawParam(string paramName = "T")
     for (int part: PARTS)
     {
        gr[part]->Draw("P SAME");
+       if (isSyst) grSys[part]->Draw("P2");
+
        legend->AddEntry(gr[part], partTitles[part].c_str(), "P");
     }
     legend->Draw();
@@ -52,8 +68,8 @@ void DrawParam(string paramName = "T")
 
 void BWDrawParams ( void )
 {
-    ReadParam(1, Tpar, Tpar_err);
-    ReadParam(2, utPar, utPar_err);
+    ReadParam(1, Tpar, Tpar_err, Tpar_sys);
+    ReadParam(2, utPar, utPar_err, utPar_sys);
     DrawParam("T");
     DrawParam("ut");
     gROOT->ProcessLine(".q");

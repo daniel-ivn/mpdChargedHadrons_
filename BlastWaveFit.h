@@ -148,9 +148,11 @@ public:
                 
                 ifuncx[part][centr]->SetLineColor(centrColors[centr]);
                 
+                
+        // +++++++++ Metrics ++++++++++++++++++++++++++++++++++++
+
                 double *params = ifuncx[part][centr]->GetParameters();
                 const double *paramsErr = ifuncx[part][centr]->GetParErrors();
-
                 std::copy(params, params + 4, outParams[part][centr]);
                 std::copy(paramsErr, paramsErr + 4, outParamsErr[part][centr]);
 
@@ -162,6 +164,24 @@ public:
                 {
                     outParamsErr[part][centr][i] *= sqrt(chi2Ndf);
                 }
+
+                int N = 0, fitN = 0;
+                double *x, *y, d = 0;
+                x = grSpectra[part][centr]->GetX();
+                y = grSpectra[part][centr]->GetY();
+                N = grSpectra[part][centr]->GetN();
+
+                for (int i = 0; i < N; i++)
+                {
+                    if (x[i] >= xmin[part] && x[i] <= xmax[part])
+                    {
+                        d += pow((y[i] - ifuncx[part][centr]->Eval(x[i])) / y[i], 2);
+                        fitN++;
+                    }
+                }
+                d = sqrt(d) / fitN;
+
+                cout << part << " " << centr << "  " << d << " " << chi2Ndf << endl;
             }
         }
     }

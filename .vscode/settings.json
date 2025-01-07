@@ -59,6 +59,8 @@
         "stdexcept": "cpp",
         "streambuf": "cpp",
         "typeinfo": "cpp",
-        "BlastWaveSystematic.C": "cpp"
+        "BlastWaveSystematic.C": "cpp",
+        "BWDrawParams copy.C": "cpp",
+        "LevyDrawParams.C": "cpp"
     }
 }

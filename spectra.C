@@ -1,14 +1,23 @@
 #include "def.h"
 #include "Cumulative.h"
+#include "HagedornFit.h"
+#include "LevyFit.h"
 
 using namespace std;
 
 void spectra( int systN = 0 )
 {
+    string fitFunc = "levy";
+
     // ++++++ Read data +++++++++++++++++++++++++++++++++++++
-    // string inputFileName = "postprocess_mpdpid10";
-    string inputFileName = "postprocess_test-XeW";
+    string inputFileName = "postprocess_mpdpid10";
+    // string inputFileName = "postprocess_test-XeW";
     SetSpectra(inputFileName, "pt");
+
+    if (fitFunc == "levy")
+         FitLevy();
+    else
+        FitHagedorn();
 
     // ++++++ Draw spectra +++++++++++++++++++++++++++++++++++++
 
@@ -47,7 +56,7 @@ void spectra( int systN = 0 )
        // DrawCumulativeBorder(i, PAD_MIN, PAD_MAX);
     }
 
-    c2->SaveAs(("output/spectra_XeW_" + inputFileName + ".pdf").c_str());
+    c2->SaveAs(("output/spectra_" + fitFunc + "_" + inputFileName + ".pdf").c_str());
     delete c2;
 }
 

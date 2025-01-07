@@ -108,6 +108,7 @@ void SetSpectra(string inputFileName = "postprocess_mpdpid10", string type = "pt
                 xerr[bin - 1] = 0.;
                 pT[bin - 1] = hSpectra[i][centr]->GetBinCenter(bin);
                 mT[bin - 1] = sqrt(pT[bin - 1] * pT[bin - 1] + masses[i] * masses[i]) - masses[i];
+                // cout << i << "  " << pT[bin - 1] << "  " << sp_err[bin - 1] << endl;
             }
     
             if (type == "mt") 

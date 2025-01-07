@@ -23,27 +23,27 @@ output - BlastWaveGlobalFit.pdf, GlobalBWparams.txt
 
 **BlastWaveGlobalAllParts** - строит BlastWave GlobalFit одновременно по всем частицам. Плохо работает
 
-**BlastWave.C** - строит отдельные BlastWave фиты для каждой частицы, а в качетсве начальных параметров аппроксимации задаются параметры, полученные в ГлобалФите (output/GlobalBWparams.txt)
+**BlastWave.C** - строит отдельные BlastWave фиты для каждой частицы, а в качетсве начальных параметров аппроксимации задаются параметры, полученные в ГлобалФите (output/txtParams/GlobalBWparams.txt)
 
 ## BlastWave  12.2024
 
 **BlastWaveGlobal** - строит Глобальный (общий) фит по pi, K, p одновременно. 
 
-* output/BlastWaveGlobalFit.pdf - спектры с глобал фитом
-* output/GlobalBWparams.txt - параметаы глобал фита (charge, centr, T, constPi, constK, constP)
+* output/txtParams/BlastWaveGlobalFit.pdf - спектры с глобал фитом
+* output/txtParams/GlobalBWparams.txt - параметаы глобал фита (charge, centr, T, constPi, constK, constP)
 
-**BlastWave.C** - строит отдельные BlastWave фиты для каждой частицы, а в качетсве начальных параметров аппроксимации задаются параметры, полученные в ГлобалФите (output/GlobalBWparams.txt)
+**BlastWave.C** - строит отдельные BlastWave фиты для каждой частицы, а в качетсве начальных параметров аппроксимации задаются параметры, полученные в ГлобалФите (output/txtParams/GlobalBWparams.txt)
 
 * output/BlastWave.pdf - спектры с отдальными фитами
-* output/BWparams.txt - параметаы фитов (part, centr, const, T, Terr, ut, ut_err)
-* output/BlastWave_contour.pdf - контурные графики (не очень работают)
+* output/txtParams/BWparams.txt - параметаы фитов (part, centr, const, T, Terr, ut, ut_err)
+* output/txtParams/BlastWave_contour.pdf - контурные графики (не очень работают)
 
 **BlastWaveFit.h** - фитирует БластВейвом различными способами (разные варианты задания начальных параметров). По умолчанию - 0.
 
 **BlastWaveSyst.C** - строит систематические погрешности для фитирования.
-* output/BWparamsSyst.txt 
+* output/txtParams/BWparamsSyst.txt 
 
-**BWDrawParams** - строит T и ut как функции от центральности по результатам output/BWparams.txt
+**BWDrawParams** - строит T и ut как функции от центральности по результатам output/txtParams/BWparams.txt
 
 * output/BWparam_T.pdf 
 * output/BWparam_ut.pdf

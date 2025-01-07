@@ -3,7 +3,7 @@
 
 #include "def.h"
 
-void WriteGlobalParams( bool *isParamsFileExist, int charge, const char filename[30] = "output/GlobalBWparams.txt" )
+void WriteGlobalParams( bool *isParamsFileExist, int charge, const char filename[30] = "output/txtParams/GlobalBWparams.txt" )
 {
    cout << " WriteParams " << endl;
    ofstream txtFile;
@@ -25,7 +25,7 @@ void WriteGlobalParams( bool *isParamsFileExist, int charge, const char filename
    *isParamsFileExist = true;
 }
 
-void ReadGlobalParams( double paramsGlobal[2][N_CENTR][5], const char filename[30] = "output/GlobalBWparams.txt" )
+void ReadGlobalParams( double paramsGlobal[2][N_CENTR][5], const char filename[30] = "output/txtParams/GlobalBWparams.txt" )
 {
     ifstream txtFile;
     txtFile.open(filename);
@@ -51,7 +51,7 @@ void ReadGlobalParams( double paramsGlobal[2][N_CENTR][5], const char filename[3
 
 
 void WriteParams( double par[N_PARTS][N_CENTR][4], double parErr[N_PARTS][N_CENTR][4],
-                  const char filename[30] = "output/BWparams.txt" )
+                  const char filename[30] = "output/txtParams/BWparams.txt" )
 {
     ofstream txtFile;
     txtFile.open(filename);
@@ -69,8 +69,28 @@ void WriteParams( double par[N_PARTS][N_CENTR][4], double parErr[N_PARTS][N_CENT
     txtFile.close();
 }
 
+void WriteParams( double par[N_PARTS][N_CENTR][5], double parErr[N_PARTS][N_CENTR][5],
+                  const char filename[30] = "output/txtParams/HagedornParams.txt" )
+{
+    ofstream txtFile;
+    txtFile.open(filename);
+
+    for (int part: PARTS)
+    {
+        for (int centr: CENTR)
+        {
+            txtFile << part << "  " << centr << "  " << par[part][centr][0] << "  "
+                    << par[part][centr][1] << "   " << parErr[part][centr][1] << "   "
+                    << par[part][centr][2] << "   " << parErr[part][centr][2] << "   "
+                    << par[part][centr][3] << "   " << parErr[part][centr][3] << endl;
+        }
+    }
+    
+    txtFile.close();
+}
+
 void WriteParamsSyst( double par[N_PARTS][N_CENTR][4], double parErr[N_PARTS][N_CENTR][4], double parSyst[N_PARTS][N_CENTR][4],
-                  const char filename[30] = "output/BWparamsSyst.txt" )
+                  const char filename[30] = "output/txtParams/BWparamsSyst.txt" )
 {
     ofstream txtFile;
     txtFile.open(filename);
@@ -90,7 +110,7 @@ void WriteParamsSyst( double par[N_PARTS][N_CENTR][4], double parErr[N_PARTS][N_
 
 
 void ReadParams( double par[N_PARTS][N_CENTR][4], double parErr[N_PARTS][N_CENTR][4],
-                 const char filename[30] = "output/BWparams.txt" )
+                 const char filename[30] = "output/txtParams/BWparams.txt" )
 {
     ifstream f;
     f.open(filename);
@@ -109,7 +129,7 @@ void ReadParams( double par[N_PARTS][N_CENTR][4], double parErr[N_PARTS][N_CENTR
 }
 
 void ReadParams( int part, int centr, double par[4],
-                 const char filename[30] = "output/BWparams.txt" )
+                 const char filename[30] = "output/txtParams/BWparams.txt" )
 {
     ifstream f;
     f.open(filename);
@@ -132,7 +152,7 @@ void ReadParams( int part, int centr, double par[4],
 
 
 void ReadParam( int parN, double par[N_PARTS][N_CENTR], double parErr[N_PARTS][N_CENTR],
-                 const char filename[30] = "output/BWparams.txt" )
+                 const char filename[30] = "output/txtParams/BWparams.txt" )
 {
     ifstream f;
     f.open(filename);
@@ -153,7 +173,7 @@ void ReadParam( int parN, double par[N_PARTS][N_CENTR], double parErr[N_PARTS][N
 }
 
 void ReadParam( int parN, double par[N_PARTS][N_CENTR], double parErr[N_PARTS][N_CENTR], double parSyst[N_PARTS][N_CENTR],
-                 const char filename[30] = "output/BWparamsSyst.txt" )
+                 const char filename[30] = "output/txtParams/txtParams/BWparamsSyst.txt" )
 {
     ifstream f;
     f.open(filename);

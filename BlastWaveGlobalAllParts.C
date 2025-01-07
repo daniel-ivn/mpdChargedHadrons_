@@ -16,7 +16,7 @@ int ipar4[3] = {4, 0, 1};
  
 bool isParamsFileExist = false;
 
-void WriteParams( const char filename[30] = "output/GlobalBWparams.txt" )
+void WriteParams( const char filename[30] = "output/txtParams/GlobalBWparams.txt" )
 {
    cout << " WriteParams " << endl;
    ofstream txtFile;
@@ -241,7 +241,7 @@ void BlastWaveGlobalAllParts(string chargeFlag = "all")
       GlobalFitCentr(centr); // positive charged
    }
 
-   WriteParams("output/GlobalBWparamsAllParts.txt");
+   WriteParams("output/txtParams/GlobalBWparamsAllParts.txt");
 
    DrawFitSpectra();
 }

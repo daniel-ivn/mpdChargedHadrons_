@@ -34,11 +34,11 @@ void BlastWave( void )
         
         double shiftX = (i % 2 == 0) ? 0 : 0.1;
         double texScale = (i < 3) ? 1 : 0.9;
-        TLegend *legend = new TLegend(0.5 - shiftX, 0.7, 0.95 - shiftX, 0.9); //1 column
+        TLegend *legend = new TLegend(0.5 - shiftX, 0.6, 0.95 - shiftX, 0.9); //1 column
         legend->SetBorderSize(0);
         legend->SetFillStyle(0);
         legend->SetNColumns(2);
-        legend->SetTextSize(0.072 * texScale);
+        legend->SetTextSize(0.075 * texScale);
 
         TLatex *titleTex = new TLatex(0.4, 500, partTitles[i].c_str());
         titleTex->SetTextFont(42);

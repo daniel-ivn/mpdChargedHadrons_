@@ -12,6 +12,7 @@ string centrTitles[5] = {"0-20%", "20-40%", "40-60%", "60-80%"};
 TH1D *hSpectra[6][5];
 TH1D *hRatioP[N_CENTR];
 
+double ratPHENIX = 0.73, ratMPD;
 
 double tempFunc( double x )  
 { 
@@ -33,6 +34,45 @@ void DrawLineOnPhaseDiagram(double parValue, Color_t color, string title, TLegen
     legend->AddEntry(expTmuFunc, title.c_str(), "l");
 }
 
+void DrawKineticFreezeOut()
+{
+    TF1 *expTmuFunc = new TF1("ratioF", "-2. * x / log([0])", 0, 500);
+    double T0[2] = {118, 108.652}, mu[2];
+    expTmuFunc->SetParameter(0, ratPHENIX);
+    mu[0] = expTmuFunc->GetX(T0[0]); // PHENIX
+    expTmuFunc->SetParameter(0, ratMPD);
+    mu[1] = expTmuFunc->GetX(T0[1]); // MPD
+
+    cout << " \n Kinetic freeze-out" << endl;
+    cout << "PHENIX  " << mu[0] << "  " << T0[0] << endl;
+    cout << "MPD     " << mu[1] << "  " << T0[1] << endl;
+
+    TGraph *gr = new TGraph(2, mu, T0);
+    gr->SetMarkerStyle(8);
+    gr->SetMarkerSize(3);
+    gr->SetMarkerColor(kBlue);
+    gr->Draw("P SAME");
+}
+
+void DrawChemicalFreezeOut()
+{
+    TF1 *expTmuFunc = new TF1("ratioF", "-2. * x / log([0])", 0, 500);
+    double mu[2] = {24.87, 247.}, T[2];
+    expTmuFunc->SetParameter(0, ratPHENIX);
+    T[0] = expTmuFunc->Eval(mu[0]); // PHENIX
+    expTmuFunc->SetParameter(0, ratMPD);
+    T[1] = expTmuFunc->Eval(mu[1]); // MPD
+
+    cout << "\n Chemical freeze-out" << endl;
+    cout << "PHENIX  " << mu[0] << "  " << T[0] << endl;
+    cout << "MPD     " << mu[1] << "  " << T[1] << endl;
+
+    TGraph *gr = new TGraph(2, mu, T);
+    gr->SetMarkerStyle(8);
+    gr->SetMarkerSize(3);
+    gr->SetMarkerColor(kRed);
+    gr->Draw("P SAME");
+}
 void DrawPhaseDiagram( double ratioP[N_CENTR] )
 {
     TCanvas *c3 = new TCanvas("c3", "c3", 29, 30, 1200, 1200);
@@ -59,7 +99,9 @@ void DrawPhaseDiagram( double ratioP[N_CENTR] )
     {
         DrawLineOnPhaseDiagram(ratioP[centr], centrColors[centr], centrTitles[centr], legend);
     }
-    DrawLineOnPhaseDiagram(0.73, kBlack, "PHENIX", legend);
+    DrawLineOnPhaseDiagram(ratPHENIX, kBlack, "PHENIX", legend);
+    DrawKineticFreezeOut();
+    DrawChemicalFreezeOut();
 
     TString title = "#frac{#sqrt{3/34}}{#pi} #sqrt{#sqrt{340#pi^{2}(220)^{4} + 55#mu^{4}}-15#mu^{2}}";
     TLatex *titleTex = new TLatex(50, 170, title);
@@ -136,6 +178,6 @@ void ChemicalPotential( void )
     }
     legend->Draw();
     c2->SaveAs("output/RatioP.pdf");
-    
+    ratMPD = ratioP[0];
     DrawPhaseDiagram(ratioP);
 }

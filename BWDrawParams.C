@@ -5,6 +5,8 @@ double constPar[MAX_PARTS][N_CENTR],
        Tpar[N_PARTS][N_CENTR], Tpar_err[N_PARTS][N_CENTR], Tpar_sys[N_PARTS][N_CENTR], 
        utPar[N_PARTS][N_CENTR], utPar_err[N_PARTS][N_CENTR], utPar_sys[N_PARTS][N_CENTR];
 
+double avgT = 0, avgTerr = 0.;
+
 void DrawParam(string paramName = "T", bool isSyst = true)
 {
     TGraphErrors *gr[N_PARTS], *grSys[N_PARTS];
@@ -55,6 +57,15 @@ void DrawParam(string paramName = "T", bool isSyst = true)
     legend->SetNColumns(2);
     legend->SetTextSize(0.05);
 
+    if (paramName == "T")
+    {
+        TLine *lineT = new TLine(ll, avgT, rl, avgT); 
+        lineT->SetLineColor(kRed);
+        lineT->SetLineWidth(2);
+        lineT->SetLineStyle(kDashed);
+        lineT->Draw("same");
+    }
+
     for (int part: PARTS)
     {
        gr[part]->Draw("P SAME");
@@ -70,7 +81,22 @@ void BWDrawParams ( void )
 {
     ReadParam(1, Tpar, Tpar_err, Tpar_sys);
     ReadParam(2, utPar, utPar_err, utPar_sys);
+
+    int count = 0;
+    for (int centr: CENTR)
+        for (int part = 0; part < 6; part++)
+        {
+            avgT += Tpar[part][centr];
+            avgTerr += pow(Tpar_sys[part][centr], 2);
+            count++;
+        }
+    avgT = avgT / double(count);
+    avgTerr = sqrt(avgTerr) / double(count);
+    cout << avgT << "  " << avgTerr << endl;
+
+
     DrawParam("T");
     DrawParam("ut");
+
     gROOT->ProcessLine(".q");
 }

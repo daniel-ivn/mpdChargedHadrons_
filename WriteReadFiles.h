@@ -173,7 +173,7 @@ void ReadParam( int parN, double par[N_PARTS][N_CENTR], double parErr[N_PARTS][N
 }
 
 void ReadParam( int parN, double par[N_PARTS][N_CENTR], double parErr[N_PARTS][N_CENTR], double parSyst[N_PARTS][N_CENTR],
-                 const char filename[30] = "output/txtParams/txtParams/BWparamsSyst.txt" )
+                 const char filename[30] = "output/txtParams/BWparamsSyst.txt" )
 {
     ifstream f;
     f.open(filename);

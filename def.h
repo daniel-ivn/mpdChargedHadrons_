@@ -11,6 +11,7 @@
 #include <TFile.h>
 #include "TLegend.h"
 #include "BlastWave.h"
+#include "TLine.h"
 
 
 const int MAX_CENTR = 10;

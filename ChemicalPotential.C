@@ -147,7 +147,7 @@ void ChemicalPotential( void )
         hRatioP[centr]->Divide(hSpectra[4][centr]);
 
         fitF->SetLineColor(centrColors[centr]);
-        hRatioP[centr]->Fit("fitF");
+        //hRatioP[centr]->Fit("fitF");
         
         ratioP[centr] = fitF->GetParameter(0);
         cout << "centr  " << centr << " " << ratioP[centr] << endl;
@@ -177,6 +177,15 @@ void ChemicalPotential( void )
         legend->AddEntry(hRatioP[centr], centrTitles[centr].c_str(), "l");
 
     }
+
+    //Draw averrage pbar/p value 0.023795867
+    TF1 *avgRatio = new TF1("ratioF", "[0]", ll, rl);
+    avgRatio->SetParameter(0, 0.023795867);
+    avgRatio->SetLineColor(kRed);
+    avgRatio->SetLineStyle(9);
+    avgRatio->SetLineWidth(2);
+    avgRatio->Draw("SAME");
+
     legend->Draw();
     c2->SaveAs("output/RatioP.pdf");
     ratMPD = ratioP[0];

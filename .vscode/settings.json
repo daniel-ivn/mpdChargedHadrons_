@@ -1,5 +1,6 @@
 {
     "files.associations": {
+        "*.sqlbook": "sql",
         "*.ndjson": "jsonl",
         "*.dbclient-js": "javascript",
         "ChemicalPotential.C": "cpp",
@@ -61,6 +62,7 @@
         "typeinfo": "cpp",
         "BlastWaveSystematic.C": "cpp",
         "BWDrawParams copy.C": "cpp",
-        "LevyDrawParams.C": "cpp"
+        "LevyDrawParams.C": "cpp",
+        "chrono": "cpp"
     }
 }

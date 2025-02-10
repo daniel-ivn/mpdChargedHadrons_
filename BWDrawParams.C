@@ -47,7 +47,7 @@ void DrawParam(string paramName = "T", bool isSyst = true)
     double ll = 10, rl = 100., pad_min = 0., pad_max = (paramName == "T") ? 0.3 : 1., 
         pad_offset_x = 1., pad_offset_y = 1., 
         pad_tsize = 0.05, pad_lsize=0.05;
-    TString pad_title_y = (paramName == "T") ? "T [GeV]" : "#LTu_{t}#GT";
+    TString pad_title_y = (paramName == "T") ? "T [GeV]" : "#beta";
     TString pad_title_x = "centrality [%]";
     Format_Pad(ll, rl, pad_min, pad_max, pad_title_x, pad_title_y, pad_offset_x, pad_offset_y, pad_tsize, pad_lsize, "", 8);        
     

@@ -79,10 +79,10 @@ void DrawPhaseDiagram( double ratioP[N_CENTR] )
     c3->cd();
     c3->SetGrid();
     double ll = 0, rl = 500, pad_min = 0, pad_max = 199, 
-        pad_offset_x = 1., pad_offset_y = 1., 
+        pad_offset_x = 0.9, pad_offset_y = 0.9, 
         pad_tsize = 0.05, pad_lsize=0.05;
-    TString pad_title_y = "T";
-    TString pad_title_x = "#mu";
+    TString pad_title_y = "T [MeV]";
+    TString pad_title_x = "#mu [MeV]";
     Format_Pad(ll, rl, pad_min, pad_max, pad_title_x, pad_title_y, pad_offset_x, pad_offset_y, pad_tsize, pad_lsize, "", 4);        
 
     auto f = new TF1("tempFunc", "tempFunc(x)",0, 500);
@@ -90,16 +90,17 @@ void DrawPhaseDiagram( double ratioP[N_CENTR] )
     f->SetMarkerSize(3);
     f->Draw("SAME");
 
-    TLegend *legend = new TLegend(0.4, 0.15, 0.6, 0.35);
+    TLegend *legend = new TLegend(0.22, 0.73, 0.85, 0.89);
     legend->SetBorderSize(0);
-    legend->SetFillStyle(0);
+    // legend->SetFillStyle(0);
     legend->SetTextSize(0.04);
 
-    for (int centr = 0; centr < N_CENTR; centr++)
-    {
-        DrawLineOnPhaseDiagram(ratioP[centr], centrColors[centr], centrTitles[centr], legend);
-    }
-    DrawLineOnPhaseDiagram(ratPHENIX, kBlack, "PHENIX", legend);
+    // for (int centr = 0; centr < N_CENTR; centr++)
+    // {
+    //     DrawLineOnPhaseDiagram(ratioP[centr], centrColors[centr], centrTitles[centr], legend);
+    // }
+    DrawLineOnPhaseDiagram(ratioP[0], centrColors[0], "MPD(NICA) #sqrt{s_{NN}}=9.2 GeV", legend);
+    DrawLineOnPhaseDiagram(ratPHENIX, kBlack, "PHENIX(RHIC) #sqrt{s_{NN}}=200 GeV", legend);
     DrawKineticFreezeOut();
     DrawChemicalFreezeOut();
 
@@ -108,7 +109,7 @@ void DrawPhaseDiagram( double ratioP[N_CENTR] )
     titleTex->SetTextFont(42);
     titleTex->SetTextSize(0.05);
     titleTex->SetLineWidth(2);
-    titleTex->Draw();
+    // titleTex->Draw();
 
     legend->Draw();
 

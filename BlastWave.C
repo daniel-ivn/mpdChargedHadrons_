@@ -4,6 +4,52 @@
 
 using namespace std;
 
+void DrawSpectraPart( TString partName, int part1, int part2 )
+{
+    TCanvas *c4 = new TCanvas("c2", "c2", 29, 30, 1200, 1200);
+    int NpadX = 1, NpadY = 2;
+    Format_Canvas(c4, NpadX, NpadY, 0);
+
+    int padN = 1;
+    
+    for (int i: {part1, part2})
+    {
+        c4->SetLogy();
+        c4->cd(padN);  
+
+        double shiftX = (i % NpadX == 0) ? 0 : 0.1;
+        double texScale = (padN == 1 ) ? 1 : 0.9;
+        TLegend *legend = new TLegend(0.5 - shiftX, 0.65, 0.9 - shiftX, 0.95); //1 column
+        legend->SetBorderSize(0);
+        legend->SetFillStyle(0);
+        legend->SetNColumns(2);
+        legend->SetTextSize(0.073 * texScale);
+
+        TLatex *titleTex = new TLatex(0.4, 2000, partTitles[i].c_str());
+        titleTex->SetTextFont(42);
+        titleTex->SetTextSize(0.09);
+        titleTex->SetLineWidth(2 * texScale);
+
+        FormatSpectraPad(texScale);
+        for (int centr: CENTR)
+        {
+            if (!ifuncx[i][centr]) continue;
+
+            grSpectra[i][centr]->SetMarkerColor(centrColors[centr]);
+            grSpectra[i][centr]->SetMarkerSize(1);
+            grSpectra[i][centr]->SetMarkerStyle(8);
+            grSpectra[i][centr]->Draw("P SAME");      
+            ifuncx[i][centr]->Draw("SAME");
+            legend->AddEntry(grSpectra[i][centr], centrTitles[centr].c_str(), "p");        
+        }
+        legend->Draw();
+        titleTex->Draw();    
+        padN++;
+    }
+
+    c4->SaveAs("output/BlastWave_" + partName + ".pdf");
+}
+
 void BlastWave( void )
 {
     bool isContour = false;
@@ -18,16 +64,17 @@ void BlastWave( void )
     BlastWaveFit *bwFit = new BlastWaveFit();
     bwFit->Fit(0);
     WriteParams(bwFit->outParams, bwFit->outParamsErr);
+    WriteParams(bwFit->outParams, bwFit->outParamsErr, false);
    
     if (!isDraw)
         return;
 
-    // ++++++ Draw spectra +++++++++++++++++++++++++++++++++++++
+    // ++++++ Draw spectra All +++++++++++++++++++++++++++++++++++++
 
     TCanvas *c2 = new TCanvas("c2", "c2", 29, 30, 1200, 1200);
-    Format_Canvas(c2, 2, 3, 0);
+    Format_Canvas(c2, 1, 2, 0);
 
-    for (int i: PARTS)
+    for (int i: {0, 1})
     {
         c2->SetLogy();
         c2->cd(i + 1);  
@@ -63,6 +110,10 @@ void BlastWave( void )
 
     c2->SaveAs("output/BlastWave.pdf");
     delete c2;
+
+    DrawSpectraPart("pi", 0, 1);
+    DrawSpectraPart("K", 2, 3);
+    DrawSpectraPart("p", 4, 5);
 
     if (!isContour) {
         gROOT->ProcessLine(".q");

@@ -51,20 +51,38 @@ void ReadGlobalParams( double paramsGlobal[2][N_CENTR][5], const char filename[3
 
 
 void WriteParams( double par[N_PARTS][N_CENTR][4], double parErr[N_PARTS][N_CENTR][4],
-                  const char filename[30] = "output/txtParams/BWparams.txt" )
+                  int printAll = true, const char filename[30] = "output/txtParams/BWparams.txt")
 {
     ofstream txtFile;
-    txtFile.open(filename);
 
-    for (int part: PARTS)
+    if (printAll)
     {
-        for (int centr: CENTR)
+        txtFile.open(filename);
+        for (int part: PARTS)
         {
-            txtFile << part << "  " << centr << "  " << par[part][centr][0] << "  "
-                    << par[part][centr][1] << "   " << parErr[part][centr][1] << "   "
-                    << par[part][centr][2] << "   " << parErr[part][centr][2] << endl;
+            for (int centr: CENTR)
+            {
+                txtFile << part << "  " << centr << "  " << par[part][centr][0] << "  "
+                        << par[part][centr][1] << "   " << parErr[part][centr][1] << "   "
+                        << par[part][centr][2] << "   " << parErr[part][centr][2] << endl;
+            }
         }
     }
+    else 
+    {
+        txtFile.open("output/txtParams/BWparams_noErrs.txt");
+        string centrTitle[6] = {"0-10\\%", "10-20\\%", "20-30\\%", "30-40\\%", "40-60\\%", "60-80\\%"};
+        for (int part: PARTS)
+        {
+            for (int centr: CENTR)
+            {
+                txtFile << centrTitle[centr] << " & " << int(par[part][centr][1] * 1000) << " & "  << floorf(par[part][centr][2] * 100) / 100. << " \\\\ " << endl;
+            }
+            txtFile << endl;
+        }
+    }
+    
+    
     
     txtFile.close();
 }

@@ -63,6 +63,10 @@
         "BlastWaveSystematic.C": "cpp",
         "BWDrawParams copy.C": "cpp",
         "LevyDrawParams.C": "cpp",
-        "chrono": "cpp"
+        "chrono": "cpp",
+        "optional": "cpp",
+        "ranges": "cpp",
+        "span": "cpp",
+        "variant": "cpp"
     }
 }

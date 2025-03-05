@@ -1,11 +1,13 @@
-#include "def.h"
-#include "WriteReadFiles.h"
+#include "input/def.h"
+#include "input/WriteReadFiles.h"
 
 double constPar[MAX_PARTS][N_CENTR],
        Tpar[N_PARTS][N_CENTR], Tpar_err[N_PARTS][N_CENTR], Tpar_sys[N_PARTS][N_CENTR], 
        utPar[N_PARTS][N_CENTR], utPar_err[N_PARTS][N_CENTR], utPar_sys[N_PARTS][N_CENTR];
 
 double avgT = 0, avgTerr = 0.;
+double avgUt = 0, avgUtErr = 0.;
+
 
 void DrawParam(string paramName = "T", bool isSyst = true)
 {
@@ -74,7 +76,7 @@ void DrawParam(string paramName = "T", bool isSyst = true)
        legend->AddEntry(gr[part], partTitles[part].c_str(), "P");
     }
     legend->Draw();
-    c2->SaveAs(("output/BWparam_" + paramName + ".pdf").c_str());
+    c2->SaveAs(("output/pics/BWparam_" + paramName + ".png").c_str());
 }
 
 void BWDrawParams ( void )
@@ -88,11 +90,20 @@ void BWDrawParams ( void )
         {
             avgT += Tpar[part][centr];
             avgTerr += pow(Tpar_sys[part][centr], 2);
+    
+            avgUt += utPar[part][centr];
+            avgUtErr += pow(utPar_sys[part][centr], 2);
+    
             count++;
         }
     avgT = avgT / double(count);
     avgTerr = sqrt(avgTerr) / double(count);
-    cout << avgT << "  " << avgTerr << endl;
+    
+    avgUt = avgUt / double(count);
+    avgUtErr = sqrt(avgUtErr) / double(count);
+    
+    cout << "T: " << avgT << " ± " << avgTerr << endl;
+    cout << "ut: " << avgUt << " ± " << avgUtErr << endl;
 
 
     DrawParam("T");

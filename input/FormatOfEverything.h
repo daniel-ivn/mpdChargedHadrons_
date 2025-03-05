@@ -1,7 +1,3 @@
-//
-// Created by vlad on 28.09.2019.
-//
-
 #ifndef FORMATOFEVERYTHING_H
 #define FORMATOFEVERYTHING_H
 
@@ -16,6 +12,8 @@
 #include <iostream>
 #include <fstream>
 #include <TLatex.h>
+#include "TLegend.h"
+#include "TLine.h"
 #include <TStyle.h>
 #include <TMarker.h>
 #include <TPolyLine.h>
@@ -58,7 +56,7 @@ void Format_Marker(TMarker *mk, Float_t mark_size=0, Color_t mark_col=0, Float_t
 
 void Format_Canvas(TCanvas *c2, int divide_x, int divide_y, float space) 
 {
-  c2->Divide(divide_x, divide_y,0,0);
+  c2->Divide(divide_x, divide_y, 0, 0);
 
   char name1[200];
   TPad *c2_1;
@@ -74,7 +72,7 @@ void Format_Canvas(TCanvas *c2, int divide_x, int divide_y, float space)
       c2->SetBorderSize(1);
 
       sprintf(name1,"c2_%d",centr + 1);
-      c2_1= (TPad*) c2->GetListOfPrimitives()->FindObject(name1);
+      c2_1 = (TPad*) c2->GetListOfPrimitives()->FindObject(name1);
       c2_1->SetTickx();
       c2_1->SetTicky();
       c2_1->SetLogy();
@@ -82,26 +80,28 @@ void Format_Canvas(TCanvas *c2, int divide_x, int divide_y, float space)
       if ((centr % divide_x) == 0 )
           c2_1->SetLeftMargin(0.2);
 
-      if (((centr+1) % divide_x) == 0)
-          c2_1->SetRightMargin(0.1);
+      if (((centr+1) % divide_x) == 0 )
+          c2_1->SetRightMargin(0.05);
 
-      if (centr < divide_x ){
-          c2_1->SetTopMargin(0);
-      }
-      if (centr >= divide_x*(divide_y - 1) ){
-          c2_1->SetBottomMargin(0.2);
-      }
+      if (centr < divide_x ) 
+          c2_1->SetTopMargin(0.05);
 
-      if (space != 0){
-          c2_1->SetLeftMargin(0.1354148);
-          c2_1->SetRightMargin(0.02);
-          c2_1->SetTopMargin(0.02);
-          c2_1->SetBottomMargin(0.1594148);
+      if (centr >= divide_x*(divide_y - 1) ) 
+          c2_1->SetBottomMargin(0.15);
+
+      if (space != 0) 
+      {
+          c2_1->SetLeftMargin(0.2);
+          c2_1->SetRightMargin(0.05);
+          c2_1->SetTopMargin(0.05);
+          c2_1->SetBottomMargin(0.15);
       }
   }
 }
 
-void Format_tex(float x = 0.3, float y = 1.4, float tex_size = 0.05402776, TString title = "part , |y|<0.35, #sqrt{s_{NN}} = 200 GeV"){
+void Format_tex(float x = 0.3, float y = 1.4, float tex_size = 0.05402776, 
+                TString title = "part , |y|<0.35, #sqrt{s_{NN}} = 200 GeV") 
+{
     TLatex *tex;
     tex = new TLatex(x,y, title);
     tex->SetTextFont(2);
@@ -109,14 +109,18 @@ void Format_tex(float x = 0.3, float y = 1.4, float tex_size = 0.05402776, TStri
     tex->SetLineWidth(2);
     tex->Draw();
 }
-void Format_Pad(double_t left, double_t right, double_t min, double_t max, const char *title_x, const char *title_y, double_t offset_x, double_t offset_y, double_t Tsize, double_t Lsize, const char *title, int NdivisionsY = 4, int NdivisionsX = 9 ) 
+
+void Format_Pad(double_t left, double_t right, double_t min, double_t max, 
+                const char *title_x, const char *title_y, double_t offset_x, 
+                double_t offset_y, double_t Tsize, double_t Lsize, 
+                const char *title, int NdivisionsY = 4, int NdivisionsX = 9 ) 
 {
   TH1F *second = new TH1F("", "", 100, left, right);
 
-  second->SetMinimum(min);
-  second->SetMaximum(max);
   second->SetStats(0);
   second->SetTitle(title);
+  second->SetMinimum(min);
+  second->SetMaximum(max);
 
   second->GetXaxis()->SetTitle(title_x);
   second->GetXaxis()->SetLabelFont(42);
@@ -131,7 +135,7 @@ void Format_Pad(double_t left, double_t right, double_t min, double_t max, const
   second->GetYaxis()->SetLabelFont(42);
   second->GetYaxis()->SetTitleFont(42);
   second->GetYaxis()->SetLabelSize(Lsize);
-  second->GetYaxis()->SetTickSize(0.02);
+  second->GetYaxis()->SetTickSize(0.03);
   second->GetYaxis()->SetTitleSize(Tsize);
   second->GetYaxis()->SetTitleOffset(offset_y);
   second->GetYaxis()->SetNdivisions(NdivisionsY);
@@ -139,19 +143,15 @@ void Format_Pad(double_t left, double_t right, double_t min, double_t max, const
   second->Draw();
 }
 
-double PAD_MIN = 0.000009;
-double PAD_MAX = 299999;
-
 void FormatSpectraPad( double texScale = 1 )
 {
-    cout<< "Format pad" << endl;
-    double ll = 0.01, rl = 2.49, pad_min = PAD_MIN, pad_max = PAD_MAX, 
-            pad_offset_x = 1., pad_offset_y = 1., 
-            pad_tsize = 0.09 * texScale, pad_lsize=0.08 * texScale;
+    cout << "Format pad" << endl;
+    double ll = 0.01, rl = 1.55, pad_min = 0.00185, pad_max = 5000000, 
+            pad_offset_x = 1.2, pad_offset_y = 1.5, 
+            pad_tsize = 0.055 * texScale, pad_lsize = 0.055 * texScale;
     TString pad_title_y = "d^{2}N/(p_{T}dydp_{T})";
-    TString pad_title_x = "m_{T} [GeV/c]";
+    TString pad_title_x = "p_{T} [GeV/c]";
     Format_Pad(ll, rl, pad_min, pad_max, pad_title_x, pad_title_y, pad_offset_x, pad_offset_y, pad_tsize, pad_lsize, "");        
 }
-
 
 #endif //WORKUU_FORMATOFEVERYTHING_H

@@ -1,18 +1,20 @@
-#include "def.h"
-#include "WriteReadFiles.h"
-#include "BlastWaveFit.h"
+#include "input/def.h"
+#include "input/WriteReadFiles.h"
+#include "input/BlastWaveFit.h"
 
-// Hello
 using namespace std;
 
+
+// Эта функция рисует спектры двух заданных частиц и сохраняет график
 void DrawSpectraPart( TString partName, int part1, int part2 )
 {
-    TCanvas *c4 = new TCanvas("c2", "c2", 29, 30, 1200, 1200);
+    TCanvas *c4 = new TCanvas("c2", "c2", 30, 30, 1200, 1200);
     int NpadX = 1, NpadY = 2;
     Format_Canvas(c4, NpadX, NpadY, 0);
 
     int padN = 1;
     
+    // Проходим по двум переданным номерам частиц
     for (int i: {part1, part2})
     {
         c4->SetLogy();
@@ -32,6 +34,9 @@ void DrawSpectraPart( TString partName, int part1, int part2 )
         titleTex->SetLineWidth(2 * texScale);
 
         FormatSpectraPad(texScale);
+
+        // Проходим по разным классам центральности, 
+        // если данные для центральности существуют
         for (int centr: CENTR)
         {
             if (!ifuncx[i][centr]) continue;
@@ -48,22 +53,23 @@ void DrawSpectraPart( TString partName, int part1, int part2 )
         padN++;
     }
 
-    c4->SaveAs("output/BlastWave_" + partName + ".pdf");
+    c4->SaveAs("output/BlastWave_" + partName + ".png");
 }
 
+
+// Основная функция анализа
 void BlastWave( void )
 {
-    bool isContour = false;
+    bool isContour = true;
     bool isDraw = true;
 
     // ++++++ Read data +++++++++++++++++++++++++++++++++++++
 
-    string inputFileName = "postprocess_mpdpid10";
-    SetSpectra(inputFileName, "mt");
+    ReadFromFileAuAu();
 
     // +++++++++ Fit +++++++++++++++++++++++++++++++++++++++
     BlastWaveFit *bwFit = new BlastWaveFit();
-    bwFit->Fit(0);
+    bwFit->Fit(2);
     WriteParams(bwFit->outParams, bwFit->outParamsErr);
     WriteParams(bwFit->outParams, bwFit->outParamsErr, false);
    
@@ -109,19 +115,22 @@ void BlastWave( void )
         titleTex->Draw();    
     }
 
-    c2->SaveAs("output/BlastWave.pdf");
+    c2->SaveAs("output/BlastWave.png");
     delete c2;
 
     DrawSpectraPart("pi", 0, 1);
     DrawSpectraPart("K", 2, 3);
     DrawSpectraPart("p", 4, 5);
 
+
+
+    //++++++++ Draw Contour plots ++++++++++++++++++++++++++++++
+
+
     if (!isContour) {
         gROOT->ProcessLine(".q");
         return;
     }
-
-    //++++++++ Draw Contour plots ++++++++++++++++++++++++++++++
 
     TCanvas *c3 = new TCanvas("c3", "c3", 29, 30, 1200, 1200);
     c3->cd();
@@ -156,7 +165,7 @@ void BlastWave( void )
     }
     legendContour->Draw();
 
-    c3->SaveAs("output/BlastWave_contour.pdf");
+    c3->SaveAs("output/BlastWave_contour.png");
     gROOT->ProcessLine(".q");
 }
 

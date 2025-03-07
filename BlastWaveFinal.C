@@ -37,8 +37,8 @@ void DrawSpectraPart( TString partName, int part1, int part2 )
 
         // Проходим по разным классам центральности, 
         // если данные для центральности существуют
-        for (int centr: CENTR)
-        {
+        for (int j = 0; j < N_CENTR_SYST[systN]; j++) {
+            int centr = CENTR_SYST[systN][j];
             if (!ifuncx[i][centr]) continue;
 
             grSpectra[i][centr]->SetMarkerColor(centrColors[centr]);
@@ -53,35 +53,40 @@ void DrawSpectraPart( TString partName, int part1, int part2 )
         padN++;
     }
 
-    c4->SaveAs("output/BlastWave_" + partName + ".png");
+    c4->SaveAs("output/pics/BlastWaveFinal_" + systNamesT[systN] + "_" + partName + ".png");
 }
 
 
 // Основная функция анализа
-void BlastWave( void )
+void BlastWaveFinal( void )
 {
-    bool isContour = true;
+    bool isContour = false;
     bool isDraw = true;
 
-    // ++++++ Read data +++++++++++++++++++++++++++++++++++++
+    // Чтение данных в зависимости от системы
+    if (systN == 0) 
+        ReadFromFileAuAu(); // Для системы AuAu
+    else                    // Для других систем
+        for (int part: PARTS) ReadFromFile(part, systN);
 
-    ReadFromFileAuAu();
-
-    // +++++++++ Fit +++++++++++++++++++++++++++++++++++++++
+    // Фитируем определённым кейсом от 0 до 4
     BlastWaveFit *bwFit = new BlastWaveFit();
-    bwFit->Fit(2);
-    WriteParams(bwFit->outParams, bwFit->outParamsErr);
-    WriteParams(bwFit->outParams, bwFit->outParamsErr, false);
+    bwFit->Fit(0);
+
+    WriteParams(systN, bwFit->outParams, bwFit->outParamsErr, true, "output/parameters/FinalBWparams_" + systNamesT[systN] + ".txt");
+    WriteParams(systN, bwFit->outParams, bwFit->outParamsErr, false, "output/parameters/FinalBWparams_" + systNamesT[systN] + ".txt");
    
     if (!isDraw)
         return;
 
+
     // ++++++ Draw spectra All +++++++++++++++++++++++++++++++++++++
 
     TCanvas *c2 = new TCanvas("c2", "c2", 29, 30, 1200, 1200);
-    Format_Canvas(c2, 1, 2, 0);
+    Format_Canvas(c2, 2, 3, 0);
 
-    for (int i: {0, 1})
+    // Цикл по всем частицам 
+    for (int i: {0, 1, 2, 3, 4, 5})
     {
         c2->SetLogy();
         c2->cd(i + 1);  
@@ -100,8 +105,8 @@ void BlastWave( void )
         titleTex->SetLineWidth(2 * texScale);
 
         FormatSpectraPad(texScale);
-        for (int centr: CENTR)
-        {
+        for (int j = 0; j < N_CENTR_SYST[systN]; j++) {
+            int centr = CENTR_SYST[systN][j];
             if (!ifuncx[i][centr]) continue;
 
             grSpectra[i][centr]->SetMarkerColor(centrColors[centr]);
@@ -115,7 +120,7 @@ void BlastWave( void )
         titleTex->Draw();    
     }
 
-    c2->SaveAs("output/BlastWave.png");
+    c2->SaveAs("output/pics/BlastWaveFinal_" + systNamesT[systN] + ".png");
     delete c2;
 
     DrawSpectraPart("pi", 0, 1);
@@ -123,9 +128,7 @@ void BlastWave( void )
     DrawSpectraPart("p", 4, 5);
 
 
-
     //++++++++ Draw Contour plots ++++++++++++++++++++++++++++++
-
 
     if (!isContour) {
         gROOT->ProcessLine(".q");
@@ -149,8 +152,10 @@ void BlastWave( void )
 
     for (int part: PARTS)
     {
-        for (int centr: CENTR)
-        {
+        for (int j = 0; j < N_CENTR_SYST[systN]; j++) {
+            int centr = CENTR_SYST[systN][j];
+            if (grSpectra[part][centr]) delete grSpectra[part][centr];
+            
             string legendText = partTitles[part] + ", " + centrTitles[centr];
             legendContour->AddEntry(contour[part][centr][1], legendText.c_str(), "l"); 
 
@@ -159,13 +164,13 @@ void BlastWave( void )
                 if (contour[part][centr][nsigma])
                     contour[part][centr][nsigma]->Draw("lf");
                 else 
-                    cout << "ERROR " << part << " " <<centr << " " << nsigma << endl;
+                    cout << "ERROR " << part << " " << centr << " " << nsigma << endl;
             }
         }
     }
     legendContour->Draw();
 
-    c3->SaveAs("output/BlastWave_contour.png");
+    c3->SaveAs("output/pics/BlastWave_contour_" + systNamesT[systN] + ".png");
     gROOT->ProcessLine(".q");
 }
 

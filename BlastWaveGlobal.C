@@ -16,6 +16,7 @@
 #include "TCanvas.h"
 #include "TStyle.h"
 
+
 // Глобальные переменные и параметры
 // Индексы параметров для разных частиц
 int ipar0[3] = {2, 0, 1};
@@ -69,8 +70,15 @@ struct GlobalChi2
 // Основная функция фитирования для определенной центральности
 void GlobalFitCentr( int centr, int charge = 0 ) 
 {
-   cout << " GlobalFitCentr " << endl;
-   double xmin = 0.3, xmax = 1.;
+   cout << " ==================== GlobalFitCentr " << centr << " ==================== " << endl;
+   double xmin, xmax;
+   if (systN == 0) {
+      xmin = 0.2;
+      xmax = 2.0;
+   } else {
+      xmin = 0.3;
+      xmax = 1.2;
+   }
 
    // 1. Подготовка функций
    ROOT::Math::WrappedMultiTF1 wf0(*ifuncxGlobal[0 + charge][centr], 1);
@@ -109,32 +117,74 @@ void GlobalFitCentr( int centr, int charge = 0 )
                      handConst[0 + charge][centr], 
                      handConst[2 + charge][centr], 
                      handConst[4 + charge][centr]};
-
-   // double par0[Npar] = { 0.10, 0.75, con[0], con[2], con[4] };
  
    // create before the parameter settings in order to fix or set range on them
    fitter.Config().SetParamsSettings(Npar, par0); 
 
    // 7. Установка ограничений на параметры
-   fitter.Config().ParSettings(0).SetLimits(0.08, 0.2);
-   fitter.Config().ParSettings(1).SetLimits(0.1, 0.9);
-   fitter.Config().ParSettings(2).SetLimits(handConst[0 + charge][centr] * 0, handConst[0 + charge][centr] * 3);
-   fitter.Config().ParSettings(3).SetLimits(handConst[2 + charge][centr] * 0, handConst[2 + charge][centr] * 3);
-   fitter.Config().ParSettings(4).SetLimits(handConst[4 + charge][centr] * 0, handConst[4 + charge][centr] * 3);
-   
+   if (centr < 10) {
+      fitter.Config().ParSettings(0).SetLimits(0.08, 0.18);
+      fitter.Config().ParSettings(1).SetLimits(0.30, 0.80);
+      fitter.Config().ParSettings(2).SetLimits(handConst[0 + charge][centr] * 0, handConst[0 + charge][centr] * 3);
+      fitter.Config().ParSettings(3).SetLimits(handConst[2 + charge][centr] * 0, handConst[2 + charge][centr] * 3);
+      fitter.Config().ParSettings(4).SetLimits(handConst[4 + charge][centr] * 0, handConst[4 + charge][centr] * 3);
+   }
+   else if (centr < 11) {
+      fitter.Config().ParSettings(0).SetLimits(0.165, 0.20);
+      fitter.Config().ParSettings(1).SetLimits(0.30, 0.55);
+      fitter.Config().ParSettings(2).SetLimits(handConst[0 + charge][centr] * 0, handConst[0 + charge][centr] * 0.0002);
+      fitter.Config().ParSettings(3).SetLimits(handConst[2 + charge][centr] * 0, handConst[2 + charge][centr] * 0.1);
+      fitter.Config().ParSettings(4).SetLimits(handConst[4 + charge][centr] * 0, handConst[4 + charge][centr] * 0.0003);
+   }
+   else if (centr < 12) {
+      fitter.Config().ParSettings(0).SetLimits(0.165, 0.20);
+      fitter.Config().ParSettings(1).SetLimits(0.30, 0.41);
+      fitter.Config().ParSettings(2).SetLimits(handConst[0 + charge][centr] * 0, handConst[0 + charge][centr] * 0.0001);
+      fitter.Config().ParSettings(3).SetLimits(handConst[2 + charge][centr] * 0, handConst[2 + charge][centr] * 0.1);
+      fitter.Config().ParSettings(4).SetLimits(handConst[4 + charge][centr] * 0.00005, handConst[4 + charge][centr] * 0.00009);
+   }
+      
    // 8. Выполнение фита
    fitter.Config().MinimizerOptions().SetPrintLevel(0);
    
    // Первый проход
-   fitter.Config().ParSettings(2).Fix();
-   fitter.Config().ParSettings(3).Fix();
-   fitter.Config().ParSettings(4).Fix();
-   fitter.FitFCN(5, globalChi2, 0, data0.Size() + data2.Size() + data4.Size(), true);
+   // fitter.Config().ParSettings(0).Fix();
+   // fitter.Config().ParSettings(1).Fix(); // Фиксируем beta
+   // // fitter.Config().ParSettings(2).Fix();
+   // // fitter.Config().ParSettings(3).Fix();
+   // // fitter.Config().ParSettings(4).Fix();
+   // // fitter.Config().SetMinimizer("Minuit2", "Samplex");
+   // // fitter.Config().SetMinimizer("GSLSimAn");
+   // fitter.Config().SetMinimizer("Genetic");  // Глобальный поиск
+   // fitter.Config().SetMinimizer("Minuit2", "Samplex");  // Точная локальная минимизация
+   // fitter.FitFCN(5, globalChi2, 0, data0.Size() + data2.Size() + data4.Size(), true);
 
-   // Второй проход (разблокируем параметры)
-   fitter.Config().ParSettings(2).Release();
-   fitter.Config().ParSettings(3).Release();
-   fitter.Config().ParSettings(4).Release();
+   // fitter.Config().ParSettings(0).Release();
+   // fitter.Config().ParSettings(1).Release();
+   // fitter.Config().ParSettings(2).Release();
+   // fitter.Config().ParSettings(3).Release();
+   // fitter.Config().ParSettings(4).Release();
+   // fitter.Config().SetMinimizer("Minuit2", "Samplex");
+   // fitter.FitFCN(5, globalChi2, 0, data0.Size() + data2.Size() + data4.Size(), true);
+
+   // // Второй проход (разблокируем параметры)
+   // fitter.Config().ParSettings(0).Fix();
+   // fitter.Config().ParSettings(1).Fix(); // Фиксируем beta
+   // fitter.Config().ParSettings(2).Fix();
+   // fitter.Config().ParSettings(3).Fix();
+   // fitter.Config().ParSettings(4).Fix();
+   // fitter.Config().SetMinimizer("Minuit2", "Migrad");
+   // fitter.FitFCN(5, globalChi2, 0, data0.Size() + data2.Size() + data4.Size(), true);
+
+   fitter.Config().ParSettings(0).Release();
+   fitter.Config().ParSettings(1).Release();
+   // fitter.Config().ParSettings(2).Release();
+   // fitter.Config().ParSettings(3).Release();
+   // fitter.Config().ParSettings(4).Release();
+   // fitter.Config().SetMinimizer("GSLSimAn");
+   fitter.Config().SetMinimizer("Genetic");  // Глобальный поиск
+   fitter.Config().SetMinimizer("Minuit2", "Migrad");  // Точная локальная минимизация
+
    fitter.FitFCN(5, globalChi2, 0, data0.Size() + data2.Size() + data4.Size(), true);
 
 
@@ -184,27 +234,28 @@ void DrawFitSpectra( int systN, string chargeFlag = "all" )
       titleTex->SetTextSize(0.08);
       titleTex->SetLineWidth(2 * texScale);
 
-      for (int centr: CENTR)
-      {
+      for (int j = 0; j < N_CENTR_SYST[systN]; j++) {
+         int centr = CENTR_SYST[systN][j];
          double parResults[5];
          getGlobalParams(part, centr, parResults);
 
          ifuncxGlobal[part][centr]->SetParameters(parResults);
          ifuncxGlobal[part][centr]->SetLineColor(centrColors[centr]);
          ifuncxGlobal[part][centr]->Draw("SAME");
+
          grSpectra[part][centr]->GetListOfFunctions()->Add(ifuncxGlobal[part][centr]);
          grSpectra[part][centr]->SetMarkerStyle(8);
          grSpectra[part][centr]->SetMarkerSize(1);
          grSpectra[part][centr]->Draw("P SAME");
 
-         // legend->AddEntry(ifuncxGlobal[part][centr], centrTitlesAuAu[centr].c_str(), "l");        
+         legend->AddEntry(ifuncxGlobal[part][centr], centrTitlesAuAu[centr].c_str(), "l");        
       }
 
-      // legend->Draw();
+      legend->Draw();
       titleTex->Draw(); 
    }
  
-   c2->SaveAs("output/pics/BlastWaveGlobalFit_" + systNamesT[systN] + ".png");
+   c2->SaveAs("output/pics/BlastWaveGlobal_" + systNamesT[systN] + ".png");
    gROOT->ProcessLine(".q");
 }
 
@@ -212,61 +263,47 @@ void DrawFitSpectra( int systN, string chargeFlag = "all" )
 // Главная функция
 void BlastWaveGlobal(string chargeFlag = "all") 
 {
-   // ++++++ Read data ++++++++++++++++++++++++++++++++++++
-   
-   // 0 = AuAu, 1 = pAl, 2 = HeAu, 3 = CuAu, 4 = UU
-   int systN = 0;
-
    // Чтение данных
-   if (systN == 0) 
-      ReadFromFileAuAu(); // Для системы AuAu
-   else                   // Для других систем
-      for (int part: PARTS)
-      {
-         ReadFromFile(part, systN);
-      }
+   if (systN == 0) ReadFromFileAuAu();                    // Для системы AuAu
+   else for (int part: PARTS) ReadFromFile(part, systN);  // Для других систем 
 
    // +++++++++ Fit +++++++++++++++++++++++++++++++++++++++
 
-   for (int centr: CENTR)
-   {
+   for (int j = 0; j < N_CENTR_SYST[systN]; j++) {
+      int centr = CENTR_SYST[systN][j];
+
       TVirtualFitter::SetDefaultFitter("Minuit");  
 
       TF1 *funcx;
       MyIntegFunc *integ;
-      double xmin = 0.3, xmax = 1.2;
 
+      double xmin, xmax;
+      if (systN == 0) {
+         xmin = 0.2;
+         xmax = 2.0;
+      } else {
+         xmin = 0.3;
+         xmax = 1.2;
+      }
+      
       funcx = new TF1("funcx", bwfitfunc, 0.01, 10, 5);
       funcx->SetParameters(2, 1);
       funcx->SetParNames("constant", "T", "beta", "mass", "pt");
       integ = new MyIntegFunc(funcx);
 
-      cout << "Обрабатываем центральность " << centr << endl;
-
       for (int part: PARTS_ALL)
       {
          string ifuncxName = "BW_" + to_string(part);
          ifuncxGlobal[part][centr] = new TF1("ifuncx", integ, xmin, xmax, 4, ifuncxName.c_str());
-         ifuncxGlobal[part][centr]->FixParameter(3, masses[part]); 	    //	mass
-         // ifuncxGlobal[part][centr]->SetParameter(0, con[part]);	        //	constant
-         // ifuncxGlobal[part][centr]->SetParameter(1, 0.08);	            //	temp.
-         // ifuncxGlobal[part][centr]->SetParameter(2, 0.75);	            //	beta
-
-         // ifuncxGlobal[part][centr]->SetParLimits(0, conmin[part], conmax[part]);	//	constant.
-         // ifuncxGlobal[part][centr]->SetParLimits(1, 0.05, 0.2);          	        //	temp.
-         // ifuncxGlobal[part][centr]->SetParLimits(2, 0.1, 0.98);	                    //	beta
-
-         // double handParams[3] = {handConst[part][centr], handBeta[centr], masses[part]};
          double handParams[4] = {handConst[part][centr], handT[centr], handBeta[centr], masses[part]};
 
          ifuncxGlobal[part][centr]->SetParameters(handParams);
          ifuncxGlobal[part][centr]->SetParLimits(0, handConst[part][centr], handConst[part][centr]); 
-
-         ifuncxGlobal[part][centr]->SetParameter(1, systN == 0 ? TAuAu[centr] : handT[centr]);	 // temp.
-         ifuncxGlobal[part][centr]->SetParameter(1, 0.118);	            //	temp.
-
+         ifuncxGlobal[part][centr]->SetParameter(1, systN == 0 ? TAuAu[centr] : handT[centr]);	    // temp.
+         ifuncxGlobal[part][centr]->SetParameter(1, 0.118);	       // temp.
          ifuncxGlobal[part][centr]->SetParameter(2, systN == 0 ? betaAuAu[centr] : beta_[centr]);	 // beta
-         ifuncxGlobal[part][centr]->SetParLimits(2, 0.1, 0.99);	                    //	beta
+         ifuncxGlobal[part][centr]->SetParLimits(2, 0.3, 0.88);	 // beta
+         ifuncxGlobal[part][centr]->FixParameter(3, masses[part]); // mass
 
          // // double xmin = GetMt(part, 0.5), xmax = GetMt(part, 1.1);
          // string ifuncxName = "BW_" + to_string(part);
@@ -285,8 +322,8 @@ void BlastWaveGlobal(string chargeFlag = "all")
       if (chargeFlag != "pos") GlobalFitCentr(centr, 1); // negative charged
    }
 
-   if (chargeFlag != "neg") WriteGlobalParams(&isParamsFileExist, 0, "output/parameters/GlobalBWparams_" + systNamesT[systN] + ".txt");
-   if (chargeFlag != "pos") WriteGlobalParams(&isParamsFileExist, 1, "output/parameters/GlobalBWparams_" + systNamesT[systN] + ".txt");
+   if (chargeFlag != "neg") WriteGlobalParams(&isParamsFileExist, 0, systN, "output/parameters/GlobalBWparams_" + systNamesT[systN] + ".txt");
+   if (chargeFlag != "pos") WriteGlobalParams(&isParamsFileExist, 1, systN, "output/parameters/GlobalBWparams_" + systNamesT[systN] + ".txt");
 
    DrawFitSpectra(systN, chargeFlag);
 }

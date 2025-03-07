@@ -35,7 +35,11 @@ public:
     {    
         // ++++++ Read data +++++++++++++++++++++++++++++++++++++
 
-        ReadFromFileAuAu();
+        // Чтение данных в зависимости от системы
+        if (systN == 0) 
+            ReadFromFileAuAu(); // Для системы AuAu
+        else                    // Для других систем
+            for (int part: PARTS) ReadFromFile(part, systN);
 
         // +++++++++ Fit +++++++++++++++++++++++++++++++++++++++
 
@@ -48,8 +52,9 @@ public:
 
         for (int part: PARTS)
         {  
-            for (int centr: CENTR)
-            {
+            for (int j = 0; j < N_CENTR_SYST[systN]; j++) {
+                int centr = CENTR_SYST[systN][j];
+   
                 // cout << "PART: " << part << "   CENTR: " << centr << endl;
                 string ifuncxName = "MyIntegFunc_" + to_string(part) + "_" + to_string(centr);
                 ifuncx[part][centr] = new TF1("ifuncx", integ, xmin[part], xmax[part], 4, ifuncxName.c_str());
@@ -59,18 +64,20 @@ public:
                     case 0: { /* DEFAULT */
                         // ================== version1 Params from Global fit ============================
                         double parResults[5];
-                        ReadGlobalParams(paramsGlobal);
+
+                        std::string filename = "output/parameters/GlobalBWparams_" + std::string(systNamesT[systN]) + ".txt";
+                        ReadGlobalParams(systN, paramsGlobal, filename.c_str());
                         getGlobalParams(part, centr, parResults);
                         if (parResults[0] == 0)
                             continue;
                             
-                        parResults[2] = (parResults[2] > 0.6) ? 0.6 : parResults[2];
+                        parResults[2] = (parResults[2] > 0.9) ? 0.9 : parResults[2];
                         ifuncx[part][centr]->SetParameters(parResults);
                         for (int par = 0; par < 3; par++)
                         {
                             ifuncx[part][centr]->SetParLimits(par, parResults[par] * 0.5, parResults[par] * 1.5);
                             if (part <= 1 && par == 2) 
-                                ifuncx[part][centr]->SetParLimits(par, parResults[par] * 0.5, parResults[par]);
+                                ifuncx[part][centr]->SetParLimits(par, parResults[par] * 0.5, parResults[par] * 1.5);
                         }
 
                         ifuncx[part][centr]->FixParameter(3, masses[part]);

@@ -67,6 +67,9 @@
         "optional": "cpp",
         "ranges": "cpp",
         "span": "cpp",
-        "variant": "cpp"
+        "variant": "cpp",
+        "BlastWaveFinal.C": "cpp",
+        "GlobalDrawParams.C": "cpp",
+        "CentDrawParams.C": "cpp"
     }
 }

@@ -1,5 +1,5 @@
-#include "input/def.h"
-#include "input/WriteReadFiles.h"
+#include "input/headers/def.h"
+#include "input/headers/WriteReadFiles.h"
 
 
 double avgT, avgTerr;
@@ -20,7 +20,7 @@ void DrawParam(string paramName = "T", bool isSyst = true)
     {
         if (paramName == "T")
             gr[part] = new TGraphErrors(N_CENTR, centrX, Tpar[part], xerr, Tpar_err[part]);
-        else if (paramName == "ut")
+        else if (paramName == "beta")
             gr[part] = new TGraphErrors(N_CENTR, centrX, utPar[part], xerr, utPar_err[part]);
         
         gr[part]->SetMarkerStyle(8);
@@ -31,7 +31,7 @@ void DrawParam(string paramName = "T", bool isSyst = true)
         {
             if (paramName == "T")
                 grSys[part] = new TGraphErrors(N_CENTR, centrX, Tpar[part], xerrSys, Tpar_sys[part]);
-            else if (paramName == "ut")
+            else if (paramName == "beta")
                 grSys[part] = new TGraphErrors(N_CENTR, centrX, utPar[part], xerrSys, utPar_sys[part]);
             
             grSys[part]->SetLineColorAlpha(partColors[part], 0.6);
@@ -46,14 +46,15 @@ void DrawParam(string paramName = "T", bool isSyst = true)
     c2->cd();
     c2->SetGrid();
     // c2->SetLogx();
+
     double ll = 0, rl = 100., pad_min = 0., pad_max = (paramName == "T") ? 0.3 : 1., 
         pad_offset_x = 1., pad_offset_y = 1., 
         pad_tsize = 0.05, pad_lsize=0.05;
     TString pad_title_y = (paramName == "T") ? "T [GeV]" : "#beta";
-    TString pad_title_x = "centrality [%]";
+    TString pad_title_x = "centr. [%]";
     Format_Pad(ll, rl, pad_min, pad_max, pad_title_x, pad_title_y, pad_offset_x, pad_offset_y, pad_tsize, pad_lsize, "", 8);        
     
-    TLegend *legend = new TLegend(0.2, 0.7, 0.4, 0.85);
+    TLegend *legend = new TLegend(0.2, 0.15, 0.4, 0.30);
     legend->SetBorderSize(0);
     legend->SetFillStyle(0);
     legend->SetNColumns(2);
@@ -67,7 +68,7 @@ void DrawParam(string paramName = "T", bool isSyst = true)
         lineT->SetLineStyle(9);
         lineT->Draw("SAME");
     }
-    else if (paramName == "ut")
+    else if (paramName == "beta")
     {
         TLine *lineT = new TLine(ll, avgUt, rl, avgUt); 
         lineT->SetLineColor(kBlack);
@@ -114,11 +115,11 @@ void CentDrawParams ( void )
     avgUtErr = sqrt(avgUtErr) / double(count);
     
     cout << "T = " << avgT << " ± " << avgTerr << endl;
-    cout << "u_t = " << avgUt << " ± " << avgUtErr << endl;
+    cout << "beta = " << avgUt << " ± " << avgUtErr << endl;
 
 
     DrawParam("T");
-    DrawParam("ut");
+    DrawParam("beta");
 
     gROOT->ProcessLine(".q");
 }

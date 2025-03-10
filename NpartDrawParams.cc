@@ -1,5 +1,5 @@
-#include "input/def.h"
-#include "input/WriteReadFiles.h"
+#include "input/headers/def.h"
+#include "input/headers/WriteReadFiles.h"
 
 
 // Определяем двумерный массив цветов: первая ось – заряд, вторая – система
@@ -27,7 +27,7 @@ void DrawParam(TString paramName = "T")
     c2->SetTopMargin(0.05);
     c2->SetBottomMargin(0.15);
 
-    double ll = 1, rl = 10000., pad_min = 0., pad_max = (paramName == "T") ? 0.3 : 1., 
+    double ll = 1, rl = 10000., pad_min = (paramName == "T") ? 0.05 : 0., pad_max = (paramName == "T") ? 0.25 : 1., 
             pad_offset_x = 1.2, pad_offset_y = 1.5, 
             pad_tsize = 0.055, pad_lsize = 0.055;
     // TString pad_title_y = "T [GeV]";
@@ -144,7 +144,9 @@ void DrawParam(TString paramName = "T")
     avgLegend->AddEntry(avgLine, avgLabel, "L");
     avgLegend->Draw();
 
-    TString name = "output/pics/BWparamGlobal_" + paramName + ".png";
+    // TString name = "output/pics/BWparamGlobal_" + paramName + ".png";
+    TString name = "output/pics/BWparamFinal_" + paramName + ".png";
+
     c2->SaveAs(name);
 }
 
@@ -157,11 +159,11 @@ void SetGraphs( int systN, TString paramName, TString fitType = "GLOBAL" )
     TString filename;
     if( fitType == "GLOBAL" )
     {
-        filename = "output/parameters/GlobalBWparams_" + systNamesT[systN] + ".txt";
+        filename = "output/parameters/ALL_GlobalBWparams_" + systNamesT[systN] + ".txt";
     }
     else if( fitType == "FINAL" )
     {
-        filename = "output/parameters/FinalBWparams_" + systNamesT[systN] + ".txt";
+        filename = "output/parameters/ALL_FinalBWparams_" + systNamesT[systN] + ".txt";
         // filename = "output/parameters/FinalBWparams_AuAu.txt";
     }
     
@@ -208,7 +210,7 @@ void SetGraphs( int systN, TString paramName, TString fitType = "GLOBAL" )
 }
 
 
-void DrawTvsUt()
+void DrawTbeta()
 {
     TCanvas *c3 = new TCanvas("c3", "T vs u_T", 30, 30, 1200, 1000);
     c3->cd();
@@ -221,7 +223,7 @@ void DrawTvsUt()
     TString pad_title_x = "#beta [GeV]";
     TString pad_title_y = "T [GeV]";
     double pad_min_x = 0.20, pad_max_x = 1.20;
-    double pad_min_y = 0.05, pad_max_y = 0.30;
+    double pad_min_y = 0.05, pad_max_y = 0.25;
     
     Format_Pad(pad_min_x, pad_max_x, pad_min_y, pad_max_y, pad_title_x, pad_title_y, 1.2, 1.5, 0.055, 0.055, "", 8);
     
@@ -273,7 +275,9 @@ void DrawTvsUt()
     
         legend->Draw();
     
-    TString name = "output/pics/T_vs_uT.png";
+    // TString name = "output/pics/BlastWaveGlobal_T(beta).png";
+    TString name = "output/pics/BlastWaveFinal_T(beta).png";
+
     c3->SaveAs(name);
 }
 
@@ -299,5 +303,5 @@ void NpartDrawParams (void)
     DrawParam("beta");
 
     WriteAveragesToFile();
-    DrawTvsUt();
+    DrawTbeta();
 }

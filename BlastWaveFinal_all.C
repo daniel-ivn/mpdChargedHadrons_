@@ -53,12 +53,12 @@ void DrawSpectraPart( TString partName, int part1, int part2 )
         padN++;
     }
 
-    c4->SaveAs("output/pics/BlastWaveFinal_" + systNamesT[systN] + "_" + partName + ".png");
+    c4->SaveAs("output/pics/ALL_BlastWaveFinal_" + systNamesT[systN] + "_" + partName + ".png");
 }
 
 
 // Основная функция анализа
-void BlastWaveFinal( void )
+void BlastWaveFinal_all( void )
 {
     bool isContour = false;
     bool isDraw = true;
@@ -73,8 +73,8 @@ void BlastWaveFinal( void )
     BlastWaveFit *bwFit = new BlastWaveFit();
     bwFit->Fit(0);
 
-    WriteParams(systN, bwFit->outParams, bwFit->outParamsErr, true, "output/parameters/FinalBWparams_" + systNamesT[systN] + ".txt");
-    WriteParams(systN, bwFit->outParams, bwFit->outParamsErr, false, "output/parameters/FinalBWparams_" + systNamesT[systN] + ".txt");
+    WriteParams(systN, bwFit->outParams, bwFit->outParamsErr, true, "output/parameters/ALL_FinalBWparams_" + systNamesT[systN] + ".txt");
+    WriteParams(systN, bwFit->outParams, bwFit->outParamsErr, false, "output/parameters/ALL_FinalBWparams_" + systNamesT[systN] + ".txt");
    
     if (!isDraw)
         return;
@@ -120,7 +120,7 @@ void BlastWaveFinal( void )
         titleTex->Draw();    
     }
 
-    c2->SaveAs("output/pics/BlastWaveFinal_" + systNamesT[systN] + ".png");
+    c2->SaveAs("output/pics/ALL_BlastWaveFinal_" + systNamesT[systN] + ".png");
     delete c2;
 
     DrawSpectraPart("pi", 0, 1);
@@ -170,7 +170,7 @@ void BlastWaveFinal( void )
     }
     legendContour->Draw();
 
-    c3->SaveAs("output/pics/BlastWave_contour_" + systNamesT[systN] + ".png");
-    gROOT->ProcessLine(".q");
+    c3->SaveAs("output/pics/ALL_BlastWave_contour_" + systNamesT[systN] + ".png");
+    // gROOT->ProcessLine(".q");
 }
 

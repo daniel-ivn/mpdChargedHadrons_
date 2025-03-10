@@ -19,9 +19,12 @@
 
 // Глобальные переменные и параметры
 // Индексы параметров для разных частиц
-int ipar0[3] = {2, 0, 1};
-int ipar2[3] = {3, 0, 1};
-int ipar4[3] = {4, 0, 1};
+int ipar0[3] = {2, 0, 1};  // Для частицы 0
+int ipar1[3] = {3, 0, 1};  // Для частицы 1
+int ipar2[3] = {4, 0, 1};  // Для частицы 2
+int ipar3[3] = {5, 0, 1};  // Для частицы 3
+int ipar4[3] = {6, 0, 1};  // Для частицы 4
+int ipar5[3] = {7, 0, 1};  // Для частицы 5
 
 // Флаг существования файла параметров
 bool isParamsFileExist = false;
@@ -29,15 +32,23 @@ bool isParamsFileExist = false;
 // Структура для расчета глобального хи-квадрат
 struct GlobalChi2 
 {
-   GlobalChi2(  ROOT::Math::IMultiGenFunction & f1,
-                ROOT::Math::IMultiGenFunction & f2,
-                ROOT::Math::IMultiGenFunction & f3) :
-   fChi2_1(&f1), fChi2_2(&f2), fChi2_3(&f3) {}
+   GlobalChi2(  
+      ROOT::Math::IMultiGenFunction & f0,
+      ROOT::Math::IMultiGenFunction & f1,
+      ROOT::Math::IMultiGenFunction & f2,
+      ROOT::Math::IMultiGenFunction & f3,
+      ROOT::Math::IMultiGenFunction & f4,
+      ROOT::Math::IMultiGenFunction & f5) :
+   fChi2_0(&f0), fChi2_1(&f1), fChi2_2(&f2), 
+   fChi2_3(&f3), fChi2_4(&f4), fChi2_5(&f5) {}
 
    // Указатели на хи-квадрат функции для трех частиц
+   const  ROOT::Math::IMultiGenFunction * fChi2_0;
    const  ROOT::Math::IMultiGenFunction * fChi2_1;
    const  ROOT::Math::IMultiGenFunction * fChi2_2;
    const  ROOT::Math::IMultiGenFunction * fChi2_3;
+   const  ROOT::Math::IMultiGenFunction * fChi2_4;
+   const  ROOT::Math::IMultiGenFunction * fChi2_5;
    
    // Оператор расчета общего хи-квадрат
    double operator() (const double *par) const 
@@ -49,78 +60,86 @@ struct GlobalChi2
       // par[4] = mass	K
       // par[5] = mass	p
 
-      const int Nparams = 4, Nfunc = 3;
+      const int Nparams = 4, Nfunc = 6;
       double p[Nfunc][Nparams];
-      int commonParams = 3;
 
       for (int i = 0; i < Nfunc; i++)
       {
-         p[i][0] = par[2 + i];
-         p[i][1] = par[0]; 
-         p[i][2] = par[1]; 
-         p[i][3] = masses[2 * i];
+         p[i][0] = par[2 + i];   // Individual normalization
+         p[i][1] = par[0];       // Tf
+         p[i][2] = par[1];       // Beta
+         p[i][3] = masses[i];    // Mass of the particle
       }
-      
-      // Сумма хи-квадрат для трех частиц
-      return (*fChi2_1)(p[0]) + (*fChi2_2)(p[1]) + (*fChi2_3)(p[2]);
+
+      return (*fChi2_0)(p[0]) + (*fChi2_1)(p[1]) + (*fChi2_2)(p[2]) +
+             (*fChi2_3)(p[3]) + (*fChi2_4)(p[4]) + (*fChi2_5)(p[5]);
    }
 };
-
-
-/* ---------------------- Функция фитирования ---------------------- */
 
 
 // Основная функция фитирования для определенной центральности
 void GlobalFitCentr( int centr, int charge = 0 ) 
 {
    cout << " ==================== GlobalFitCentr " << centr << " ==================== " << endl;
-
-   double xmin, xmax;
-   if (systN == 0) {
-      xmin = 0.2;
-      xmax = 2.0;
-   } else {
-      xmin = 0.3;
-      xmax = 1.0;
-   }
+   double xmin = (systN == 0) ? 0.2 : 0.3;
+   double xmax = (systN == 0) ? 2.0 : 1.2;
 
    // 1. Подготовка функций
-   ROOT::Math::WrappedMultiTF1 wf0(*ifuncxGlobal[0 + charge][centr], 1);
-   ROOT::Math::WrappedMultiTF1 wf2(*ifuncxGlobal[2 + charge][centr], 1);
-   ROOT::Math::WrappedMultiTF1 wf4(*ifuncxGlobal[4 + charge][centr], 1);
+   ROOT::Math::WrappedMultiTF1 wf0(*ifuncxGlobal[0][centr], 1);
+   ROOT::Math::WrappedMultiTF1 wf1(*ifuncxGlobal[1][centr], 1);
+   ROOT::Math::WrappedMultiTF1 wf2(*ifuncxGlobal[2][centr], 1);
+   ROOT::Math::WrappedMultiTF1 wf3(*ifuncxGlobal[3][centr], 1);
+   ROOT::Math::WrappedMultiTF1 wf4(*ifuncxGlobal[4][centr], 1);
+   ROOT::Math::WrappedMultiTF1 wf5(*ifuncxGlobal[5][centr], 1);
 
    // 2. Настройка данных
    ROOT::Fit::DataOptions opt;
-   ROOT::Fit::DataRange range0, range2, range4;
+   ROOT::Fit::DataRange range0, range1, range2, range3, range4, range5;
    
    // 3. Загрузка данных из графиков (TGraphErrors)
    range0.SetRange(xmin, xmax);
    ROOT::Fit::BinData data0(opt, range0);
-   ROOT::Fit::FillData(data0, grSpectra[0 + charge][centr]);
- 
+   ROOT::Fit::FillData(data0, grSpectra[0][centr]);
+
+   range1.SetRange(xmin, xmax);
+   ROOT::Fit::BinData data1(opt, range1);
+   ROOT::Fit::FillData(data1, grSpectra[1][centr]);
+
    range2.SetRange(xmin, xmax);
    ROOT::Fit::BinData data2(opt, range2);
-   ROOT::Fit::FillData(data2, grSpectra[2 + charge][centr]);
- 
+   ROOT::Fit::FillData(data2, grSpectra[2][centr]);
+
+   range3.SetRange(xmin, xmax);
+   ROOT::Fit::BinData data3(opt, range3);
+   ROOT::Fit::FillData(data3, grSpectra[3][centr]);
+
    range4.SetRange(xmin, xmax);
    ROOT::Fit::BinData data4(opt, range4);
-   ROOT::Fit::FillData(data4, grSpectra[4 + charge][centr]);
+   ROOT::Fit::FillData(data4, grSpectra[4][centr]);
+
+   range5.SetRange(xmin, xmax);
+   ROOT::Fit::BinData data5(opt, range5);
+   ROOT::Fit::FillData(data5, grSpectra[5][centr]);
    
    // 4. Создание хи-квадрат функций
    ROOT::Fit::Chi2Function chi2_0(data0, wf0);
+   ROOT::Fit::Chi2Function chi2_1(data1, wf1);
    ROOT::Fit::Chi2Function chi2_2(data2, wf2);
+   ROOT::Fit::Chi2Function chi2_3(data3, wf3);
    ROOT::Fit::Chi2Function chi2_4(data4, wf4);
+   ROOT::Fit::Chi2Function chi2_5(data5, wf5);
 
    // 5. Инициализация глобального хи-квадрат
-   GlobalChi2 globalChi2(chi2_0, chi2_2, chi2_4);
+   GlobalChi2 globalChi2(chi2_0, chi2_1, chi2_2, chi2_3, chi2_4, chi2_5);
 
-   // 6. Настройка фиттера
+   // 6. Настройка фиттера с 8 параметрами:
+   // par[0] = T, par[1] = β, par[2]...par[7] = константы для частиц 0,1,...,5 соответственно.
    ROOT::Fit::Fitter fitter;
-   const int Npar = 5;
-   double par0[5] = {handT[centr], handBeta[centr], 
-                     handConst[0 + charge][centr], 
-                     handConst[2 + charge][centr], 
-                     handConst[4 + charge][centr]};
+   const int Npar = 8;
+   double par0[Npar] = {handT[centr], handBeta[centr], 
+                        handConst[0][centr], handConst[1][centr], 
+                        handConst[2][centr], handConst[3][centr], 
+                        handConst[4][centr], handConst[5][centr]};
  
    // create before the parameter settings in order to fix or set range on them
    fitter.Config().SetParamsSettings(Npar, par0); 
@@ -129,88 +148,70 @@ void GlobalFitCentr( int centr, int charge = 0 )
    if (centr < 10) {
       fitter.Config().ParSettings(0).SetLimits(0.08, 0.18);
       fitter.Config().ParSettings(1).SetLimits(0.30, 0.80);
-      fitter.Config().ParSettings(2).SetLimits(handConst[0 + charge][centr] * 0, handConst[0 + charge][centr] * 3);
-      fitter.Config().ParSettings(3).SetLimits(handConst[2 + charge][centr] * 0, handConst[2 + charge][centr] * 3);
-      fitter.Config().ParSettings(4).SetLimits(handConst[4 + charge][centr] * 0, handConst[4 + charge][centr] * 3);
+      // Для констант всех 6 частиц
+      for (int i = 2; i < Npar; i++) {
+         fitter.Config().ParSettings(i).SetLimits(0.0, handConst[i-2][centr] * 3);
+      }
    }
    else if (centr < 11) {
       fitter.Config().ParSettings(0).SetLimits(0.165, 0.20);
       fitter.Config().ParSettings(1).SetLimits(0.30, 0.55);
-      fitter.Config().ParSettings(2).SetLimits(handConst[0 + charge][centr] * 0, handConst[0 + charge][centr] * 0.0002);
-      fitter.Config().ParSettings(3).SetLimits(handConst[2 + charge][centr] * 0, handConst[2 + charge][centr] * 0.1);
-      fitter.Config().ParSettings(4).SetLimits(handConst[4 + charge][centr] * 0, handConst[4 + charge][centr] * 0.0003);
+      for (int i = 2; i < Npar; i++) {
+         fitter.Config().ParSettings(i).SetLimits(0.0, handConst[i-2][centr] * 0.0009);
+      }
    }
    else if (centr < 12) {
       fitter.Config().ParSettings(0).SetLimits(0.165, 0.20);
       fitter.Config().ParSettings(1).SetLimits(0.30, 0.41);
-      fitter.Config().ParSettings(2).SetLimits(handConst[0 + charge][centr] * 0, handConst[0 + charge][centr] * 0.0001);
-      fitter.Config().ParSettings(3).SetLimits(handConst[2 + charge][centr] * 0, handConst[2 + charge][centr] * 0.1);
-      fitter.Config().ParSettings(4).SetLimits(handConst[4 + charge][centr] * 0.00005, handConst[4 + charge][centr] * 0.00009);
+      for (int i = 2; i < Npar; i++) {
+         fitter.Config().ParSettings(i).SetLimits(0.0, handConst[i-2][centr] * 0.0003);
+      }
    }
       
    // 8. Выполнение фита
    fitter.Config().MinimizerOptions().SetPrintLevel(0);
-   
-   // Первый проход
-   // fitter.Config().ParSettings(0).Fix();
-   // fitter.Config().ParSettings(1).Fix(); // Фиксируем beta
-   // // fitter.Config().ParSettings(2).Fix();
-   // // fitter.Config().ParSettings(3).Fix();
-   // // fitter.Config().ParSettings(4).Fix();
-   // // fitter.Config().SetMinimizer("Minuit2", "Samplex");
-   // // fitter.Config().SetMinimizer("GSLSimAn");
-   // fitter.Config().SetMinimizer("Genetic");  // Глобальный поиск
-   // fitter.Config().SetMinimizer("Minuit2", "Samplex");  // Точная локальная минимизация
-   // fitter.FitFCN(5, globalChi2, 0, data0.Size() + data2.Size() + data4.Size(), true);
 
-   // fitter.Config().ParSettings(0).Release();
-   // fitter.Config().ParSettings(1).Release();
-   // fitter.Config().ParSettings(2).Release();
-   // fitter.Config().ParSettings(3).Release();
-   // fitter.Config().ParSettings(4).Release();
-   // fitter.Config().SetMinimizer("Minuit2", "Samplex");
-   // fitter.FitFCN(5, globalChi2, 0, data0.Size() + data2.Size() + data4.Size(), true);
-
-   // // Второй проход (разблокируем параметры)
-   fitter.Config().ParSettings(0).Fix();
-   fitter.Config().ParSettings(1).Fix();
+   fitter.Config().ParSettings(0).Fix(); // Фиксируем T
+   fitter.Config().ParSettings(1).Fix(); // Фиксируем beta
    fitter.Config().SetMinimizer("Minuit2", "Migrad");
-   fitter.FitFCN(5, globalChi2, 0, data0.Size() + data2.Size() + data4.Size(), true);
+   fitter.FitFCN(Npar, globalChi2, 0, 
+      data0.Size() + data1.Size() + data2.Size() + 
+      data3.Size() + data4.Size() + data5.Size(), true);
 
-   fitter.Config().ParSettings(0).Release();
-   fitter.Config().ParSettings(1).Release();
-   fitter.Config().SetMinimizer("GSLSimAn"); // Глобальный поиск
-   fitter.Config().SetMinimizer("Genetic");  // Глобальный поиск
-   fitter.Config().SetMinimizer("Minuit2", "Migrad");  // Точная локальная минимизация
-   fitter.FitFCN(5, globalChi2, 0, data0.Size() + data2.Size() + data4.Size(), true);
+   fitter.Config().ParSettings(0).Release(); // Отпускаем T
+   fitter.Config().ParSettings(1).Release(); // Отпускаем beta
+   fitter.Config().SetMinimizer("Genetic");  
+   fitter.Config().SetMinimizer("Minuit2", "Migrad");  
+
+   fitter.FitFCN(Npar, globalChi2, 0, 
+      data0.Size() + data1.Size() + data2.Size() + 
+      data3.Size() + data4.Size() + data5.Size(), true);
 
    ROOT::Fit::FitResult result = fitter.Result();
    result.Print(std::cout);
 
    double chi2 = result.MinFcnValue();
-   int total_points = data0.Size() + data2.Size() + data4.Size();
+   int total_points = data0.Size() + data1.Size() + data2.Size() 
+                  + data3.Size() + data4.Size() + data5.Size();
    int n_free_params = result.NFreeParameters();
    int ndf = total_points - n_free_params;
    double chi2_ndf = chi2 / ndf;
-   
+
    cout << "Chi2/NDF = " << chi2_ndf 
         << " (Chi2 = " << chi2 
         << ", NDF = " << ndf << ")" << endl;
 
    // 9. Сохранение результатов
    const double *fitResults = result.GetParams();
-   for (int i = 0; i < 5; i++ ) paramsGlobal[charge][centr][i] = fitResults[i];
+   for (int i = 0; i < Npar; i++) 
+      paramsGlobal[charge][centr][i] = fitResults[i];
 
-   string chargeFlag = (charge == 0) ? "pos" : "neg";
-   cout << "Result " << paramsGlobal[charge][centr][0] << "  " 
-                     << paramsGlobal[charge][centr][1] << "  " 
-                     << paramsGlobal[charge][centr][2] << "  " 
-                     << paramsGlobal[charge][centr][3] << "  " 
-                     << paramsGlobal[charge][centr][4] << endl;
+   cout << "Result ";
+   for (int i = 0; i < Npar; i++) {
+      cout << paramsGlobal[charge][centr][i] << "  ";
+   }
+   cout << endl;
 }
-
-
-/* ---------------------- Построение спектров частиц ---------------------- */
 
 
 // Функция визуализации результатов
@@ -264,15 +265,13 @@ void DrawFitSpectra( int systN, string chargeFlag = "all" )
       titleTex->Draw(); 
    }
  
-   c2->SaveAs("output/pics/BlastWaveGlobal_" + systNamesT[systN] + ".png");
-   gROOT->ProcessLine(".q");
+   c2->SaveAs("output/pics/ALL_BlastWaveGlobal_" + systNamesT[systN] + ".png");
+   // gROOT->ProcessLine(".q");
 }
 
 
-/* ---------------------- Главная функция ---------------------- */
-
-
-void BlastWaveGlobal(string chargeFlag = "all") 
+// Главная функция
+void BlastWaveGlobal_all(string chargeFlag = "all") 
 {
    // Чтение данных
    if (systN == 0) ReadFromFileAuAu();                    // Для системы AuAu
@@ -333,8 +332,8 @@ void BlastWaveGlobal(string chargeFlag = "all")
       if (chargeFlag != "pos") GlobalFitCentr(centr, 1); // negative charged
    }
 
-   if (chargeFlag != "neg") WriteGlobalParams(&isParamsFileExist, 0, systN, "output/parameters/GlobalBWparams_" + systNamesT[systN] + ".txt");
-   if (chargeFlag != "pos") WriteGlobalParams(&isParamsFileExist, 1, systN, "output/parameters/GlobalBWparams_" + systNamesT[systN] + ".txt");
+   if (chargeFlag != "neg") WriteGlobalParams(&isParamsFileExist, 0, systN, "output/parameters/ALL_GlobalBWparams_" + systNamesT[systN] + ".txt");
+   if (chargeFlag != "pos") WriteGlobalParams(&isParamsFileExist, 1, systN, "output/parameters/ALL_GlobalBWparams_" + systNamesT[systN] + ".txt");
 
    DrawFitSpectra(systN, chargeFlag);
-} 
+}

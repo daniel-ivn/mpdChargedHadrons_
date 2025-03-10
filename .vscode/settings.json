@@ -70,6 +70,13 @@
         "variant": "cpp",
         "BlastWaveFinal.C": "cpp",
         "GlobalDrawParams.C": "cpp",
-        "CentDrawParams.C": "cpp"
+        "CentDrawParams.C": "cpp",
+        "BlastWaveGlobal_all.C": "cpp",
+        "BlastWaveCountur.C": "cpp",
+        "BlastWaveContour.C": "cpp",
+        "BlastWaveGlobal_.C": "cpp",
+        "BlastWaveFinal copy.C": "cpp",
+        "BlastWaveFinal_.C": "cpp",
+        "BlastWaveFinal_all.C": "cpp"
     }
 }

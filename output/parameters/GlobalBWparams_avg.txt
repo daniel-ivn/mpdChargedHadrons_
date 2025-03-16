@@ -1,2 +1,2 @@
-T_avg = 0.113553500 GeV
-ut_avg = 0.715314233 GeV
+T_avg = 0.137501300 GeV
+ut_avg = 0.640262567 GeV

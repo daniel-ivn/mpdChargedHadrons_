@@ -53,14 +53,14 @@ void DrawSpectraPart( TString partName, int part1, int part2 )
         padN++;
     }
 
-    c4->SaveAs("output/pics/ALL_BlastWaveFinal_" + systNamesT[systN] + "_" + partName + ".png");
+    // c4->SaveAs("output/pics/ALL_BlastWaveFinal_" + systNamesT[systN] + "_" + partName + ".png");
 }
 
 
 // Основная функция анализа
 void BlastWaveFinal_all( void )
 {
-    bool isContour = false;
+    bool isContour = true;
     bool isDraw = true;
 
     // Чтение данных в зависимости от системы
@@ -71,6 +71,7 @@ void BlastWaveFinal_all( void )
 
     // Фитируем определённым кейсом от 0 до 4
     BlastWaveFit *bwFit = new BlastWaveFit();
+    bwFit->isContour = true; 
     bwFit->Fit(0);
 
     WriteParams(systN, bwFit->outParams, bwFit->outParamsErr, true, "output/parameters/ALL_FinalBWparams_" + systNamesT[systN] + ".txt");
@@ -138,39 +139,97 @@ void BlastWaveFinal_all( void )
     TCanvas *c3 = new TCanvas("c3", "c3", 29, 30, 1200, 1200);
     c3->cd();
     c3->SetGrid();
+
+    // 1. Добавим проверку инициализации контуров
+    bool contoursExist = false;
+
+    for (int part : PARTS) {
+        for (int j = 0; j < N_CENTR_SYST[systN]; j++) {
+            int centr = CENTR_SYST[systN][j];
+            for (int nsigma = 1; nsigma < N_SIGMA; nsigma++) {
+                if (contour[part][centr][nsigma]) {
+                    contoursExist = true;
+                    break;
+                }
+            }
+            if (contoursExist) break;
+        }
+        if (contoursExist) break;
+    }
+
+    if (!contoursExist) {
+        cerr << "Error: No contour plots found!" << endl;
+        return;
+    }
+
+    // 2. Форматирование pad вынесем после проверок
     double ll = 0.00001, rl = 2, pad_min = 0.00001, pad_max = 0.2, 
         pad_offset_x = 1., pad_offset_y = 1., 
-        pad_tsize = 0.05, pad_lsize=0.05;
+        pad_tsize = 0.05, pad_lsize = 0.05;
     TString pad_title_y = "T";
     TString pad_title_x = "#beta";
-    Format_Pad(ll, rl, pad_min, pad_max, pad_title_x, pad_title_y, pad_offset_x, pad_offset_y, pad_tsize, pad_lsize, "", 8);        
+    Format_Pad(ll, rl, pad_min, pad_max, pad_title_x, pad_title_y, 
+            pad_offset_x, pad_offset_y, pad_tsize, pad_lsize, "", 8);
 
     TLegend *legendContour = new TLegend(0.6, 0.35, 0.85, 0.85);
     legendContour->SetBorderSize(0);
     legendContour->SetFillStyle(0);
     legendContour->SetTextSize(0.04);
 
-    for (int part: PARTS)
-    {
+    // 3. Модифицированный цикл отрисовки
+    for (int part : PARTS) {
         for (int j = 0; j < N_CENTR_SYST[systN]; j++) {
             int centr = CENTR_SYST[systN][j];
-            if (grSpectra[part][centr]) delete grSpectra[part][centr];
             
-            string legendText = partTitles[part] + ", " + centrTitles[centr];
-            legendContour->AddEntry(contour[part][centr][1], legendText.c_str(), "l"); 
+            // Проверка существования хотя бы одного контура
+            bool hasAnyContour = false;
+            for (int nsigma = 1; nsigma < N_SIGMA; nsigma++) {
+                if (contour[part][centr][nsigma]) {
+                    hasAnyContour = true;
+                    break;
+                }
+            }
+            if (!hasAnyContour) continue;
 
-            for (int nsigma = 1; nsigma < N_SIGMA; nsigma++)
-            {
-                if (contour[part][centr][nsigma])
-                    contour[part][centr][nsigma]->Draw("lf");
-                else 
-                    cout << "ERROR " << part << " " << centr << " " << nsigma << endl;
+            // Добавление в легенду
+            string legendText = partTitles[part] + ", " + centrTitles[centr];
+            
+            // Используем первый существующий контур для легенды
+            TGraph* firstValidContour = nullptr;
+            for (int nsigma = 1; nsigma < N_SIGMA; nsigma++) {
+                if (contour[part][centr][nsigma]) {
+                    firstValidContour = contour[part][centr][nsigma];
+                    break;
+                }
+            }
+            
+            if (firstValidContour) {
+                legendContour->AddEntry(firstValidContour, legendText.c_str(), "l");
+            }
+
+            // Отрисовка контуров с разными стилями
+            for (int nsigma = 1; nsigma < N_SIGMA; nsigma++) {
+                if (contour[part][centr][nsigma]) {
+                    // Настройка стилей для разных сигм
+                    contour[part][centr][nsigma]->SetLineColor(centrColors[centr]);
+                    contour[part][centr][nsigma]->SetLineStyle(nsigma);
+                    contour[part][centr][nsigma]->SetLineWidth(2);
+                    contour[part][centr][nsigma]->Draw("lf same");
+                }
             }
         }
     }
+
+    // 4. Добавим заголовок и дополнительную разметку
+    TLatex* header = new TLatex(0.4, 0.95, Form("System: %s", systNamesT[systN].Data()));
+    header->SetNDC();
+    header->SetTextSize(0.045);
+    header->Draw();
+
     legendContour->Draw();
+    c3->Update();
 
     c3->SaveAs("output/pics/ALL_BlastWave_contour_" + systNamesT[systN] + ".png");
-    // gROOT->ProcessLine(".q");
+    gROOT->ProcessLine(".q");
 }
 

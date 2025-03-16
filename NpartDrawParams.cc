@@ -145,13 +145,18 @@ void DrawParam(TString paramName = "T")
     avgLegend->Draw();
 
     // TString name = "output/pics/BWparamGlobal_" + paramName + ".png";
-    TString name = "output/pics/BWparamFinal_" + paramName + ".png";
+    TString name = "output/pics/ALL_BWparamFinal_" + paramName + ".png";
 
     c2->SaveAs(name);
+
+    delete c2;
+    delete legend;
+    delete avgLine;
+    delete avgLegend;
 }
 
 
-void SetGraphs( int systN, TString paramName, TString fitType = "GLOBAL" )
+void SetGraphs( int systN, TString paramName, TString fitType = "FINAL" )
 {
     cout << systNamesT[systN] << endl;
 
@@ -164,8 +169,10 @@ void SetGraphs( int systN, TString paramName, TString fitType = "GLOBAL" )
     else if( fitType == "FINAL" )
     {
         filename = "output/parameters/ALL_FinalBWparams_" + systNamesT[systN] + ".txt";
-        // filename = "output/parameters/FinalBWparams_AuAu.txt";
+        // filename = "output/parameters/ALL_FinalBWparams_AuAu.txt";
+        // filename = "output/parameters/ALL_FinalBWparams_CuAu.txt";
     }
+    cout << "Reading file: " << filename << endl;
     
     ReadGlobalParams(systN, paramsGlobal, filename);
 
@@ -210,7 +217,7 @@ void SetGraphs( int systN, TString paramName, TString fitType = "GLOBAL" )
 }
 
 
-void DrawTbeta()
+void DrawTbeta(TString fitType = "FINAL") 
 {
     TCanvas *c3 = new TCanvas("c3", "T vs u_T", 30, 30, 1200, 1000);
     c3->cd();
@@ -233,10 +240,42 @@ void DrawTbeta()
     legend->SetNColumns(2);
     legend->SetTextSize(0.05);
     
+    // Считываем данные из файлов для каждого systN и charge
     for (int systN : SYSTS)
     {
         for (int charge : {0, 1})
         {
+            // Выбор имени файла в зависимости от типа фитирования
+            TString filename;
+            if (fitType == "GLOBAL")
+            {
+                filename = "output/parameters/ALL_GlobalBWparams_" + systNamesT[systN] + ".txt";
+            }
+            else if (fitType == "FINAL")
+            {
+                filename = "output/parameters/ALL_FinalBWparams_" + systNamesT[systN] + ".txt";
+                // filename = "output/parameters/ALL_FinalBWparams_CuAu.txt";
+            }
+            
+            // Считываем параметры из файла
+            ReadGlobalParams(systN, paramsGlobal, filename);
+            
+            // Заполняем массивы Tpar и utPar
+            for (int centr = 0; centr < N_CENTR_SYST[systN]; centr++)
+            {
+                if (fitType == "GLOBAL")
+                {
+                    Tpar[charge][centr] = paramsGlobal[charge][centr][0];
+                    utPar[charge][centr] = paramsGlobal[charge][centr][1];
+                }
+                else if (fitType == "FINAL")
+                {
+                    Tpar[charge][centr] = paramsGlobal[charge][centr][1];
+                    utPar[charge][centr] = paramsGlobal[charge][centr][3];
+                }
+            }
+            
+            // Создаем график T vs beta
             TGraphErrors *gr_TvsUt = new TGraphErrors(N_CENTR_SYST[systN], utPar[charge], Tpar[charge], 0, 0);
             gr_TvsUt->SetMarkerStyle(markerStyles[charge][systN]);
             gr_TvsUt->SetMarkerSize(2);
@@ -246,39 +285,41 @@ void DrawTbeta()
         }
     }
     
-        // Добавляем точки ARTICLE для AuAu
-        const int nPoints = 13;
-        TGraph *articleAuAu = new TGraph(nPoints, beta_AuAu_ART, T_AuAu_ART);
-        articleAuAu->SetMarkerStyle(43);
-        articleAuAu->SetMarkerColor(kMagenta);
-        articleAuAu->SetMarkerSize(1.5);
-        articleAuAu->SetLineColor(kMagenta);
-        articleAuAu->SetLineStyle(2);
-        articleAuAu->Draw("P SAME");
-        legend->AddEntry(articleAuAu, "AuAu_{Th}", "P");
+    // Добавляем точки ARTICLE для AuAu
+    const int nPoints = 13;
+    TGraph *articleAuAu = new TGraph(nPoints, beta_AuAu_ART, T_AuAu_ART);
+    articleAuAu->SetMarkerStyle(43);
+    articleAuAu->SetMarkerColor(kMagenta);
+    articleAuAu->SetMarkerSize(1.5);
+    articleAuAu->SetLineColor(kMagenta);
+    articleAuAu->SetLineStyle(2);
+    articleAuAu->Draw("P SAME");
+    legend->AddEntry(articleAuAu, "AuAu_{Th}", "P");
     
-        // Добавляем точки STAR для AuAu
-        TGraph *starAuAu = new TGraph(9, beta_AuAu_STAR, T_AuAu_STAR);
-        starAuAu->SetMarkerStyle(20);
-        starAuAu->SetMarkerColor(kBlue);
-        starAuAu->SetMarkerSize(1.5);
-        starAuAu->Draw("P SAME");
-        legend->AddEntry(starAuAu, "AuAu_{STAR}", "P");
+    // Добавляем точки STAR для AuAu
+    TGraph *starAuAu = new TGraph(9, beta_AuAu_STAR, T_AuAu_STAR);
+    starAuAu->SetMarkerStyle(20);
+    starAuAu->SetMarkerColor(kBlue);
+    starAuAu->SetMarkerSize(1.5);
+    starAuAu->Draw("P SAME");
+    legend->AddEntry(starAuAu, "AuAu_{STAR}", "P");
     
-        // Добавляем точки STAR для UU
-        TGraph *starUU = new TGraph(9, beta_UU_STAR, T_UU_STAR);
-        starUU->SetMarkerStyle(21);
-        starUU->SetMarkerColor(kGreen);
-        starUU->SetMarkerSize(1.5);
-        starUU->Draw("P SAME");
-        legend->AddEntry(starUU, "UU_{STAR}", "P");
+    // Добавляем точки STAR для UU
+    TGraph *starUU = new TGraph(9, beta_UU_STAR, T_UU_STAR);
+    starUU->SetMarkerStyle(21);
+    starUU->SetMarkerColor(kGreen);
+    starUU->SetMarkerSize(1.5);
+    starUU->Draw("P SAME");
+    legend->AddEntry(starUU, "UU_{STAR}", "P");
     
-        legend->Draw();
+    legend->Draw();
     
-    // TString name = "output/pics/BlastWaveGlobal_T(beta).png";
-    TString name = "output/pics/BlastWaveFinal_T(beta).png";
-
+    // Сохраняем график
+    TString name = "output/pics/ALL_BWparamFinal_T_beta.png";
     c3->SaveAs(name);
+
+    delete c3;
+    delete legend;
 }
 
 

@@ -259,10 +259,10 @@ void ReadGlobalParams( int systN, double paramsGlobal[2][N_CENTR][5], const char
         for (int j = 0; j < N_CENTR_SYST[systN]; j++) {
             int centr = CENTR_SYST[systN][j];
             txtFile >> charge >> centr 
-                    >> paramsGlobal[charge][centr][0] 
-                    >> paramsGlobal[charge][centr][1]
+                    >> paramsGlobal[charge][centr][0] // T for AuAu
+                    >> paramsGlobal[charge][centr][1] // beta for AuAu // T for else
                     >> paramsGlobal[charge][centr][2] 
-                    >> paramsGlobal[charge][centr][3] 
+                    >> paramsGlobal[charge][centr][3] // beta for else
                     >> paramsGlobal[charge][centr][4];
 
             // cout << paramsGlobal[charge][centr][0] << endl;

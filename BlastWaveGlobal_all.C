@@ -157,16 +157,16 @@ void GlobalFitCentr( int centr, int charge = 0 )
       beta_max = 0.8; 
    }
    else if (systN == 1) {  // 1 = pAl
-      T_min = 0.12;    
-      T_max = 0.18;    
-      beta_min = 0.5; 
-      beta_max = 0.78; 
+      T_min = 0.15;    
+      T_max = 0.25;    
+      beta_min = 0.1; 
+      beta_max = 0.55; 
    }
    else if (systN == 2) {  // 2 = HeAu
-      T_min = 0.14;    
-      T_max = 0.19;    
-      beta_min = 0.5; 
-      beta_max = 0.78; 
+      T_min = 0.1;    
+      T_max = 0.2;    
+      beta_min = 0.3; 
+      beta_max = 0.8; 
    }
    else if (systN == 3) {  // 3 = CuAu
       T_min = 0.13;    
@@ -181,34 +181,35 @@ void GlobalFitCentr( int centr, int charge = 0 )
       beta_max = 0.78; 
    }
    
-   // HeAu
-   if (systN == 2) {
+   // pAl
+   if (systN == 1) {
       if (centr < 2) {
-         fitter.Config().ParSettings(0).SetLimits(0.15, T_max);       // Границы для T
-         fitter.Config().ParSettings(1).SetLimits(beta_min, beta_max); // Границы для beta
+         fitter.Config().ParSettings(0).SetLimits(0.181, 0.183);       // Границы для T
+         fitter.Config().ParSettings(1).SetLimits(0.38, 0.41); // Границы для beta
          
          for (int i = 2; i < Npar; i++) {
-               fitter.Config().ParSettings(i).SetLimits(handConst[i-2][centr] * 0, handConst[i-2][centr] * 2.5); // CuAu
+               fitter.Config().ParSettings(i).SetLimits(handConst[i-2][centr] * 0, handConst[i-2][centr] * 100); // CuAu
          }
-      } else if (centr < 3) {
-         fitter.Config().ParSettings(0).SetLimits(0.16, T_max);       // Границы для T
-         fitter.Config().ParSettings(1).SetLimits(0.68, beta_max); // Границы для beta
+      } 
+      else if (centr < 3) {
+         fitter.Config().ParSettings(0).SetLimits(0.189, 0.19);       // Границы для T
+         fitter.Config().ParSettings(1).SetLimits(0.33, 0.39); // Границы для beta
          
          for (int i = 2; i < Npar; i++) {
-            fitter.Config().ParSettings(i).SetLimits(handConst[i-2][centr] * 0, handConst[i-2][centr] * 2.5); // CuAu
+            fitter.Config().ParSettings(i).SetLimits(handConst[i-2][centr] * 0, handConst[i-2][centr] * 100); // CuAu
          }
       }
       else if (centr < 4) {
-         fitter.Config().ParSettings(0).SetLimits(0.17, T_max);       // Границы для T
-         fitter.Config().ParSettings(1).SetLimits(beta_min, 0.67); // Границы для beta
+         fitter.Config().ParSettings(0).SetLimits(0.1965, 0.2);       // Границы для T
+         fitter.Config().ParSettings(1).SetLimits(0.28, 0.30); // Границы для beta
          
          for (int i = 2; i < Npar; i++) {
-            fitter.Config().ParSettings(i).SetLimits(handConst[i-2][centr] * 0, handConst[i-2][centr] * 2.5); // CuAu
+            fitter.Config().ParSettings(i).SetLimits(handConst[i-2][centr] * 0, handConst[i-2][centr] * 100); // CuAu
          }
       }
       else if (centr < 5) {
-         fitter.Config().ParSettings(0).SetLimits(0.18, T_max);       // Границы для T
-         fitter.Config().ParSettings(1).SetLimits(0.4, 0.5); // Границы для beta
+         fitter.Config().ParSettings(0).SetLimits(0.19, 0.2);       // Границы для T
+         fitter.Config().ParSettings(1).SetLimits(0.38, 0.5); // Границы для beta
          
          for (int i = 2; i < Npar; i++) {
             fitter.Config().ParSettings(i).SetLimits(handConst[i-2][centr] * 0, handConst[i-2][centr] * 2.5); // CuAu
@@ -243,124 +244,190 @@ void GlobalFitCentr( int centr, int charge = 0 )
          }
       }
    }
+
+   // HeAu
+   // if (systN == 2) {
+   //    if (centr < 2) {
+   //       fitter.Config().ParSettings(0).SetLimits(0.149, 0.151);       // Границы для T
+   //       fitter.Config().ParSettings(1).SetLimits(0.59, 0.593); // Границы для beta
+         
+   //       for (int i = 2; i < Npar; i++) {
+   //             fitter.Config().ParSettings(i).SetLimits(handConst[i-2][centr] * 0, handConst[i-2][centr] * 100); // CuAu
+   //       }
+   //    } 
+   //    else if (centr < 3) {
+   //       fitter.Config().ParSettings(0).SetLimits(0.153, 0.2);       // Границы для T
+   //       fitter.Config().ParSettings(1).SetLimits(0.59, 0.592); // Границы для beta
+         
+   //       for (int i = 2; i < Npar; i++) {
+   //          fitter.Config().ParSettings(i).SetLimits(handConst[i-2][centr] * 0, handConst[i-2][centr] * 100); // CuAu
+   //       }
+   //    }
+   //    else if (centr < 4) {
+   //       fitter.Config().ParSettings(0).SetLimits(0.17, 0.2);       // Границы для T
+   //       fitter.Config().ParSettings(1).SetLimits(0.5, 0.9); // Границы для beta
+         
+   //       for (int i = 2; i < Npar; i++) {
+   //          fitter.Config().ParSettings(i).SetLimits(handConst[i-2][centr] * 0, handConst[i-2][centr] * 100); // CuAu
+   //       }
+   //    }
+   //    else if (centr < 5) {
+   //       fitter.Config().ParSettings(0).SetLimits(0.19, 0.2);       // Границы для T
+   //       fitter.Config().ParSettings(1).SetLimits(0.38, 0.5); // Границы для beta
+         
+   //       for (int i = 2; i < Npar; i++) {
+   //          fitter.Config().ParSettings(i).SetLimits(handConst[i-2][centr] * 0, handConst[i-2][centr] * 2.5); // CuAu
+   //       }
+   //    }
+   // } 
+   // else {
+   //    if (centr < 10) {
+   //       fitter.Config().ParSettings(0).SetLimits(T_min, T_max);       // Границы для T
+   //       fitter.Config().ParSettings(1).SetLimits(beta_min, beta_max); // Границы для beta
+         
+   //       for (int i = 2; i < Npar; i++) {
+   //          if (systN == 0) {
+   //             fitter.Config().ParSettings(i).SetLimits(handConst[i-2][centr] * 0, handConst[i-2][centr] * 300); // AuAu
+   //          } else {
+   //             fitter.Config().ParSettings(i).SetLimits(handConst[i-2][centr] * 0, handConst[i-2][centr] * 2.5); // CuAu
+   //          }
+   //       }
+   //    }
+   //    else if (centr < 11) {
+   //       fitter.Config().ParSettings(0).SetLimits(0.165, 0.20);
+   //       fitter.Config().ParSettings(1).SetLimits(0.30, 0.55);
+   //       for (int i = 2; i < Npar; i++) {
+   //          fitter.Config().ParSettings(i).SetLimits(0.0, handConst[i-2][centr] * 0.0009);
+   //       }
+   //    }
+   //    else if (centr < 12) {
+   //       fitter.Config().ParSettings(0).SetLimits(0.165, 0.20);
+   //       fitter.Config().ParSettings(1).SetLimits(0.30, 0.41);
+   //       for (int i = 2; i < Npar; i++) {
+   //          fitter.Config().ParSettings(i).SetLimits(0.0, handConst[i-2][centr] * 0.0003);
+   //       }
+   //    }
+   // }
 
    // CuAu
-   if (systN == 3) {
-      if (centr < 2) {
-         fitter.Config().ParSettings(0).SetLimits(0.129, 0.132);       // Границы для T
-         fitter.Config().ParSettings(1).SetLimits(0.7, beta_max); // Границы для beta
+   // if (systN == 3) {
+   //    if (centr < 2) {
+   //       fitter.Config().ParSettings(0).SetLimits(0.129, 0.132);       // Границы для T
+   //       fitter.Config().ParSettings(1).SetLimits(0.7, beta_max); // Границы для beta
          
-         for (int i = 2; i < Npar; i++) {
-               fitter.Config().ParSettings(i).SetLimits(handConst[i-2][centr] * 0, handConst[i-2][centr] * 2.5); // CuAu
-         }
-      } else if (centr < 3) {
-         fitter.Config().ParSettings(0).SetLimits(0.138, T_max);       // Границы для T
-         fitter.Config().ParSettings(1).SetLimits(0.68, beta_max); // Границы для beta
+   //       for (int i = 2; i < Npar; i++) {
+   //             fitter.Config().ParSettings(i).SetLimits(handConst[i-2][centr] * 0, handConst[i-2][centr] * 2.5); // CuAu
+   //       }
+   //    } 
+   //    else if (centr < 3) {
+   //       fitter.Config().ParSettings(0).SetLimits(0.138, T_max);       // Границы для T
+   //       fitter.Config().ParSettings(1).SetLimits(0.68, beta_max); // Границы для beta
          
-         for (int i = 2; i < Npar; i++) {
-            fitter.Config().ParSettings(i).SetLimits(handConst[i-2][centr] * 0, handConst[i-2][centr] * 2.5); // CuAu
-         }
-      }
-      else if (centr < 4) {
-         fitter.Config().ParSettings(0).SetLimits(0.145, T_max);       // Границы для T
-         fitter.Config().ParSettings(1).SetLimits(beta_min, 0.67); // Границы для beta
+   //       for (int i = 2; i < Npar; i++) {
+   //          fitter.Config().ParSettings(i).SetLimits(handConst[i-2][centr] * 0, handConst[i-2][centr] * 2.5); // CuAu
+   //       }
+   //    }
+   //    else if (centr < 4) {
+   //       fitter.Config().ParSettings(0).SetLimits(0.145, T_max);       // Границы для T
+   //       fitter.Config().ParSettings(1).SetLimits(beta_min, 0.67); // Границы для beta
          
-         for (int i = 2; i < Npar; i++) {
-            fitter.Config().ParSettings(i).SetLimits(handConst[i-2][centr] * 0, handConst[i-2][centr] * 2.5); // CuAu
-         }
-      }
-      else if (centr < 5) {
-         fitter.Config().ParSettings(0).SetLimits(0.175, T_max);       // Границы для T
-         fitter.Config().ParSettings(1).SetLimits(0.4, 0.5); // Границы для beta
+   //       for (int i = 2; i < Npar; i++) {
+   //          fitter.Config().ParSettings(i).SetLimits(handConst[i-2][centr] * 0, handConst[i-2][centr] * 2.5); // CuAu
+   //       }
+   //    }
+   //    else if (centr < 5) {
+   //       fitter.Config().ParSettings(0).SetLimits(0.175, T_max);       // Границы для T
+   //       fitter.Config().ParSettings(1).SetLimits(0.4, 0.5); // Границы для beta
          
-         for (int i = 2; i < Npar; i++) {
-            fitter.Config().ParSettings(i).SetLimits(handConst[i-2][centr] * 0, handConst[i-2][centr] * 2.5); // CuAu
-         }
-      }
-   } 
-   else {
-      if (centr < 10) {
-         fitter.Config().ParSettings(0).SetLimits(T_min, T_max);       // Границы для T
-         fitter.Config().ParSettings(1).SetLimits(beta_min, beta_max); // Границы для beta
+   //       for (int i = 2; i < Npar; i++) {
+   //          fitter.Config().ParSettings(i).SetLimits(handConst[i-2][centr] * 0, handConst[i-2][centr] * 2.5); // CuAu
+   //       }
+   //    }
+   // } 
+   // else {
+   //    if (centr < 10) {
+   //       fitter.Config().ParSettings(0).SetLimits(T_min, T_max);       // Границы для T
+   //       fitter.Config().ParSettings(1).SetLimits(beta_min, beta_max); // Границы для beta
          
-         for (int i = 2; i < Npar; i++) {
-            if (systN == 0) {
-               fitter.Config().ParSettings(i).SetLimits(handConst[i-2][centr] * 0, handConst[i-2][centr] * 300); // AuAu
-            } else {
-               fitter.Config().ParSettings(i).SetLimits(handConst[i-2][centr] * 0, handConst[i-2][centr] * 2.5); // CuAu
-            }
-         }
-      }
-      else if (centr < 11) {
-         fitter.Config().ParSettings(0).SetLimits(0.165, 0.20);
-         fitter.Config().ParSettings(1).SetLimits(0.30, 0.55);
-         for (int i = 2; i < Npar; i++) {
-            fitter.Config().ParSettings(i).SetLimits(0.0, handConst[i-2][centr] * 0.0009);
-         }
-      }
-      else if (centr < 12) {
-         fitter.Config().ParSettings(0).SetLimits(0.165, 0.20);
-         fitter.Config().ParSettings(1).SetLimits(0.30, 0.41);
-         for (int i = 2; i < Npar; i++) {
-            fitter.Config().ParSettings(i).SetLimits(0.0, handConst[i-2][centr] * 0.0003);
-         }
-      }
-   }
+   //       for (int i = 2; i < Npar; i++) {
+   //          if (systN == 0) {
+   //             fitter.Config().ParSettings(i).SetLimits(handConst[i-2][centr] * 0, handConst[i-2][centr] * 300); // AuAu
+   //          } else {
+   //             fitter.Config().ParSettings(i).SetLimits(handConst[i-2][centr] * 0, handConst[i-2][centr] * 2.5); // CuAu
+   //          }
+   //       }
+   //    }
+   //    else if (centr < 11) {
+   //       fitter.Config().ParSettings(0).SetLimits(0.165, 0.20);
+   //       fitter.Config().ParSettings(1).SetLimits(0.30, 0.55);
+   //       for (int i = 2; i < Npar; i++) {
+   //          fitter.Config().ParSettings(i).SetLimits(0.0, handConst[i-2][centr] * 0.0009);
+   //       }
+   //    }
+   //    else if (centr < 12) {
+   //       fitter.Config().ParSettings(0).SetLimits(0.165, 0.20);
+   //       fitter.Config().ParSettings(1).SetLimits(0.30, 0.41);
+   //       for (int i = 2; i < Npar; i++) {
+   //          fitter.Config().ParSettings(i).SetLimits(0.0, handConst[i-2][centr] * 0.0003);
+   //       }
+   //    }
+   // }
 
    // UU
-   if (systN == 4) {
-      if (centr < 2) {
-         fitter.Config().ParSettings(0).SetLimits(0.1, 0.11);       // Границы для T
-         fitter.Config().ParSettings(1).SetLimits(0.70, beta_max); // Границы для beta
+   // if (systN == 4) {
+   //    if (centr < 2) {
+   //       fitter.Config().ParSettings(0).SetLimits(0.1, 0.11);       // Границы для T
+   //       fitter.Config().ParSettings(1).SetLimits(0.70, beta_max); // Границы для beta
          
-         for (int i = 2; i < Npar; i++) {
-               fitter.Config().ParSettings(i).SetLimits(handConst[i-2][centr] * 0, handConst[i-2][centr] * 2.5); // CuAu
-         }
-      } else if (centr < 3) {
-         fitter.Config().ParSettings(0).SetLimits(0.14, T_max);       // Границы для T
-         fitter.Config().ParSettings(1).SetLimits(0.68, beta_max); // Границы для beta
+   //       for (int i = 2; i < Npar; i++) {
+   //             fitter.Config().ParSettings(i).SetLimits(handConst[i-2][centr] * 0, handConst[i-2][centr] * 2.5); // CuAu
+   //       }
+   //    } 
+   //    else if (centr < 3) {
+   //       fitter.Config().ParSettings(0).SetLimits(0.14, T_max);       // Границы для T
+   //       fitter.Config().ParSettings(1).SetLimits(0.68, beta_max); // Границы для beta
          
-         for (int i = 2; i < Npar; i++) {
-            fitter.Config().ParSettings(i).SetLimits(handConst[i-2][centr] * 0, handConst[i-2][centr] * 2.5); // CuAu
-         }
-      }
-      else if (centr < 4) {
-         fitter.Config().ParSettings(0).SetLimits(0.16, T_max);       // Границы для T
-         fitter.Config().ParSettings(1).SetLimits(beta_min, 0.67); // Границы для beta
+   //       for (int i = 2; i < Npar; i++) {
+   //          fitter.Config().ParSettings(i).SetLimits(handConst[i-2][centr] * 0, handConst[i-2][centr] * 2.5); // CuAu
+   //       }
+   //    }
+   //    else if (centr < 4) {
+   //       fitter.Config().ParSettings(0).SetLimits(0.16, T_max);       // Границы для T
+   //       fitter.Config().ParSettings(1).SetLimits(beta_min, 0.67); // Границы для beta
          
-         for (int i = 2; i < Npar; i++) {
-            fitter.Config().ParSettings(i).SetLimits(handConst[i-2][centr] * 0, handConst[i-2][centr] * 2.5); // CuAu
-         }
-      }
-   } 
-   else {
-      if (centr < 10) {
-         fitter.Config().ParSettings(0).SetLimits(T_min, T_max);       // Границы для T
-         fitter.Config().ParSettings(1).SetLimits(beta_min, beta_max); // Границы для beta
+   //       for (int i = 2; i < Npar; i++) {
+   //          fitter.Config().ParSettings(i).SetLimits(handConst[i-2][centr] * 0, handConst[i-2][centr] * 2.5); // CuAu
+   //       }
+   //    }
+   // } 
+   // else {
+   //    if (centr < 10) {
+   //       fitter.Config().ParSettings(0).SetLimits(T_min, T_max);       // Границы для T
+   //       fitter.Config().ParSettings(1).SetLimits(beta_min, beta_max); // Границы для beta
          
-         for (int i = 2; i < Npar; i++) {
-            if (systN == 0) {
-               fitter.Config().ParSettings(i).SetLimits(handConst[i-2][centr] * 0, handConst[i-2][centr] * 300); // AuAu
-            } else {
-               fitter.Config().ParSettings(i).SetLimits(handConst[i-2][centr] * 0, handConst[i-2][centr] * 2.5); // CuAu
-            }
-         }
-      }
-      else if (centr < 11) {
-         fitter.Config().ParSettings(0).SetLimits(0.165, 0.20);
-         fitter.Config().ParSettings(1).SetLimits(0.30, 0.55);
-         for (int i = 2; i < Npar; i++) {
-            fitter.Config().ParSettings(i).SetLimits(0.0, handConst[i-2][centr] * 0.0009);
-         }
-      }
-      else if (centr < 12) {
-         fitter.Config().ParSettings(0).SetLimits(0.165, 0.20);
-         fitter.Config().ParSettings(1).SetLimits(0.30, 0.41);
-         for (int i = 2; i < Npar; i++) {
-            fitter.Config().ParSettings(i).SetLimits(0.0, handConst[i-2][centr] * 0.0003);
-         }
-      }
-   }
+   //       for (int i = 2; i < Npar; i++) {
+   //          if (systN == 0) {
+   //             fitter.Config().ParSettings(i).SetLimits(handConst[i-2][centr] * 0, handConst[i-2][centr] * 300); // AuAu
+   //          } else {
+   //             fitter.Config().ParSettings(i).SetLimits(handConst[i-2][centr] * 0, handConst[i-2][centr] * 2.5); // CuAu
+   //          }
+   //       }
+   //    }
+   //    else if (centr < 11) {
+   //       fitter.Config().ParSettings(0).SetLimits(0.165, 0.20);
+   //       fitter.Config().ParSettings(1).SetLimits(0.30, 0.55);
+   //       for (int i = 2; i < Npar; i++) {
+   //          fitter.Config().ParSettings(i).SetLimits(0.0, handConst[i-2][centr] * 0.0009);
+   //       }
+   //    }
+   //    else if (centr < 12) {
+   //       fitter.Config().ParSettings(0).SetLimits(0.165, 0.20);
+   //       fitter.Config().ParSettings(1).SetLimits(0.30, 0.41);
+   //       for (int i = 2; i < Npar; i++) {
+   //          fitter.Config().ParSettings(i).SetLimits(0.0, handConst[i-2][centr] * 0.0003);
+   //       }
+   //    }
+   // }
 
    // 8. Выполнение фита
    fitter.Config().MinimizerOptions().SetPrintLevel(0);

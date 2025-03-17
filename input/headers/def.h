@@ -5,7 +5,7 @@
 #include "BlastWave.h"
 
 // 0 = AuAu, 1 = pAl, 2 = HeAu, 3 = CuAu, 4 = UU
-int systN = 0;
+int systN = 2;
 
 double gAvgT;
 double gAvgUt;
@@ -55,7 +55,7 @@ double paramsGlobal[2][N_CENTR][5]; // [2] - charge, 5 - количество п
 string particles[6] = {"pip", "pim", "kp", "km", "p", "ap"};
 string partTitles[6] = {"#pi^{+}", "#pi^{#minus}", "K^{+}", "K^{#minus}", "p", "#bar{p}"};
 double masses[6] = {0.13957061, 0.13957061, 0.493667, 0.493667, 0.938272, 0.938272};
-Color_t centrColors[11] = {kRed, kBlue, kGreen + 2, kBlack, kMagenta, kBlue+2, kBlack, kBlack, kBlack, kBlack, kBlack};
+Color_t centrColors[12] = {kRed, kBlue, kGreen + 2, kBlack, kMagenta, kBlue+2, kBlack, kBlack, kBlack, kBlack, kBlack};
 Color_t partColors[6] = {kRed, kRed, kBlue, kBlue, kGreen + 2, kGreen + 2};
 string centrTitles[10] = {"0-10%", "10-20%", "20-30%", "30-40%", "40-60%", "60-80%"};
 double centrX[12] = {46, 2.5, 7.5, 12.5, 17.5, 25, 35, 45, 55, 65, 75, 86};

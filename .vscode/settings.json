@@ -77,6 +77,8 @@
         "BlastWaveGlobal_.C": "cpp",
         "BlastWaveFinal copy.C": "cpp",
         "BlastWaveFinal_.C": "cpp",
-        "BlastWaveFinal_all.C": "cpp"
+        "BlastWaveFinal_all.C": "cpp",
+        "plot_countur.C": "cpp",
+        "plot_contour.C": "cpp"
     }
 }

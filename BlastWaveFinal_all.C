@@ -60,7 +60,7 @@ void DrawSpectraPart( TString partName, int part1, int part2 )
 // Основная функция анализа
 void BlastWaveFinal_all( void )
 {
-    bool isContour = true;
+    bool isContour = false;
     bool isDraw = true;
 
     // Чтение данных в зависимости от системы
